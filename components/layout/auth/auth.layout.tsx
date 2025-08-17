@@ -7,12 +7,13 @@ import {
     VStack,
 } from '@chakra-ui/react';
 import { Heading, Loading, Logo, SelectLanguage } from '@components/ui';
+import { FastLoading } from '@components/ui/loading/fast-loading';
 import { UserRole } from '@generated/graphql/query';
 import { useMe } from '@share/hooks/auth.hooks';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { SupportDashboardLayout } from '../dashboard/support.dashboard.layout';
 
 interface IBottomLink {
@@ -31,8 +32,23 @@ interface Props {
 export function AuthLayout({ children, title, description, bottom }: Props) {
     const router = useRouter();
     const { data, isLoading } = useMe();
+    const [loadingTimeout, setLoadingTimeout] = useState(false);
 
     const me = data?.me;
+
+    useEffect(() => {
+        // Set timeout for slow loading detection
+        const timeout = setTimeout(() => {
+            setLoadingTimeout(true);
+        }, 3000); // 3 seconds
+
+        if (!isLoading) {
+            clearTimeout(timeout);
+            setLoadingTimeout(false);
+        }
+
+        return () => clearTimeout(timeout);
+    }, [isLoading]);
 
     useEffect(() => {
         function progress() {
@@ -51,10 +67,18 @@ export function AuthLayout({ children, title, description, bottom }: Props) {
             }
         }
         progress();
-    }, [me]);
+    }, [me, router]);
 
     if (isLoading) {
-        return <Loading full />;
+        return loadingTimeout ? (
+            <FastLoading 
+                message="Đang kiểm tra thông tin đăng nhập..." 
+                showProgressText={true}
+                timeout={8000}
+            />
+        ) : (
+            <Loading full />
+        );
     }
 
     return (

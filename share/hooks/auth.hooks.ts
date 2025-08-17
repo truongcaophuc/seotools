@@ -26,6 +26,14 @@ export function useMe() {
     const setUserStore = useAuthStore((state) => state.setUserStore);
 
     return useMeQuery(client, null, {
+        // Add caching configuration for better performance
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        cacheTime: 10 * 60 * 1000, // 10 minutes
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        refetchOnReconnect: true,
+        retry: 2,
+        retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
         onSuccess(data) {
             const isPremium =
                 get(

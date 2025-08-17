@@ -14,13 +14,31 @@ export const config = {
 };
 
 let apolloServerHandler: NextApiHandler;
+let apolloServer: ApolloServer;
 
+// Pre-initialize Apollo Server for better performance
 async function getApolloServerHandler() {
-    const apolloServer = new ApolloServer({
-        schema,
-        context: createContext,
-        cache: new InMemoryLRUCache(),
-    });
+    if (!apolloServer) {
+        apolloServer = new ApolloServer({
+            schema,
+            context: createContext,
+            cache: new InMemoryLRUCache({
+                // Set cache size limit for better memory management
+                maxSize: Math.pow(2, 20) * 100, // 100MB
+                ttl: 300_000, // 5 minutes
+            }),
+            // Disable introspection and playground in production for better performance
+            introspection: process.env.NODE_ENV !== 'production',
+            playground: process.env.NODE_ENV !== 'production',
+            // Enable query caching
+            persistedQueries: {
+                cache: new InMemoryLRUCache({
+                    maxSize: Math.pow(2, 20) * 10, // 10MB
+                    ttl: 900_000, // 15 minutes
+                }),
+            },
+        });
+    }
 
     if (!apolloServerHandler) {
         await apolloServer.start();
