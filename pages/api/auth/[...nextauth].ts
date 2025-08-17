@@ -68,7 +68,7 @@ export default NextAuth({
     pages: {
         // signIn: '/auth/signin',  // Displays signin buttons
         // signOut: '/auth/signout', // Displays form with sign out button
-        // error: '/auth/error', // Error code passed in query string as ?error=
+        error: '/auth/error', // Error code passed in query string as ?error=
         // verifyRequest: '/auth/verify-request', // Used for check email page
         // newUser: null // If set, new users will be directed here on first sign in
     },
@@ -95,8 +95,21 @@ export default NextAuth({
 
     // Events are useful for logging
     // https://next-auth.js.org/configuration/events
-    events: {},
+    events: {
+        async signIn(message) {
+            console.log('NextAuth SignIn Event:', message);
+        },
+        async signOut(message) {
+            console.log('NextAuth SignOut Event:', message);
+        },
+        async createUser(message) {
+            console.log('NextAuth CreateUser Event:', message);
+        },
+        async session(message) {
+            console.log('NextAuth Session Event:', message);
+        },
+    },
 
     // Enable debug messages in the console if you are having problems
-    debug: false,
+    debug: process.env.NODE_ENV === 'development' || process.env.NEXTAUTH_DEBUG === 'true',
 });
