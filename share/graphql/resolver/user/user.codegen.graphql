@@ -1,0 +1,74 @@
+fragment UserInfo on User {
+    id
+    email
+    username
+    fullname
+    phoneNumber
+    active
+    isVerify
+    role
+    workspaceId
+    isDeveloper
+    workspace {
+        id
+        name
+        bucket
+        bucketSize
+        description
+        balance
+        isOwner
+        isTrial
+        timeTrial
+        expiredAt
+        workspacePackage {
+            ...WorkspacePackageInfo
+        }
+    }
+    defaultTeamId
+    defaultProjectId
+    defaultProject {
+        ...ProjectInfo
+    }
+    createdAt
+}
+
+query Users($input: UsersInputType) {
+    users(input: $input) {
+        data {
+            ...UserInfo
+        }
+        pagination {
+            ...PaginationInfo
+        }
+    }
+}
+
+mutation AddCustomer($input: AddCustomerInputType) {
+    addCustomer(input: $input) {
+        ...UserInfo
+    }
+}
+
+mutation AddMember($input: AddMemberInputType) {
+    addMember(input: $input) {
+        ...UserInfo
+    }
+}
+
+mutation DeleteMember($memberId: ID!) {
+    deleteMember(memberId: $memberId)
+}
+
+mutation UpdateUser($input: UpdateUserInputType) {
+    updateUser(input: $input) {
+        ...UserInfo
+    }
+}
+
+mutation ChangeEmail($input: ChangeEmailUserInputType) {
+    changeEmail(input: $input)
+}
+
+mutation ChangePassword($input: ChangePasswordUserInputType) {
+    changePassword(input: $input)
+}

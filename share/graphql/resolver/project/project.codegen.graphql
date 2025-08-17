@@ -1,0 +1,60 @@
+fragment ProjectInfo on Project {
+    id
+    name
+    teamId
+    default
+    url
+    description
+    createdAt
+}
+
+query Projects($input: ProjectsInputType) {
+    projects(input: $input) {
+        data {
+            ...ProjectInfo
+        }
+        pagination {
+            ...PaginationInfo
+        }
+    }
+}
+
+query Project($id: String!) {
+    project(id: $id) {
+        ...ProjectInfo
+    }
+}
+
+query ProjectDefault {
+    projectDefault {
+        ...ProjectInfo
+    }
+}
+
+mutation AddProject($input: ProjectDataInputType) {
+    addProject(input: $input) {
+        ...ProjectInfo
+    }
+}
+
+mutation UpdateProject($input: UpdateProjectInputType) {
+    updateProject(input: $input) {
+        ...ProjectInfo
+    }
+}
+
+mutation ChangeDefaultProject($input: ChangeDefaultProjectInputType) {
+    changeDefaultProject(input: $input) {
+        ...ProjectInfo
+    }
+}
+
+mutation DeleteProject($id: String!) {
+    deleteProject(id: $id)
+}
+
+mutation ChangeDefaultProjectUser($projectId: ID!) {
+    changeDefaultProjectUser(projectId: $projectId) {
+        ...ProjectInfo
+    }
+}

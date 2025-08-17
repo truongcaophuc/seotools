@@ -1,0 +1,69 @@
+fragment DocumentInfo on Document {
+    id
+    title
+    content
+    outline
+    userId
+    projectId
+    project {
+        id
+        name
+        url
+        description
+    }
+    title
+    slug
+    url
+    description
+    keywordId
+    keyword {
+        ...KeywordInfo
+    }
+    createdBy {
+        ...CreatedByInfo
+    }
+    draftId
+    hasDraft
+    parentId
+    createdAt
+}
+
+query Documents($input: DocumentsInputType) {
+    documents(input: $input) {
+        data {
+            ...DocumentInfo
+        }
+        pagination {
+            ...PaginationInfo
+        }
+    }
+}
+
+query Document($id: String!, $isDraft: Boolean) {
+    document(id: $id, isDraft: $isDraft) {
+        ...DocumentInfo
+    }
+}
+
+mutation CreateDocument($input: DocumentDataInputType) {
+    createDocument(input: $input) {
+        ...DocumentInfo
+    }
+}
+
+mutation SaveDraftDocument($input: UpdateDocumentInputType) {
+    saveDraftDocument(input: $input) {
+        ...DocumentInfo
+    }
+}
+
+
+mutation UpdateDocument($input: UpdateDocumentInputType) {
+    updateDocument(input: $input) {
+        ...DocumentInfo
+    }
+}
+
+mutation DeleteDocument($id: String!) {
+    deleteDocument(id: $id)
+}

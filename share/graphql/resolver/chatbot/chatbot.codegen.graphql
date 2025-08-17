@@ -1,0 +1,98 @@
+fragment ConversationInfo on Conversation {
+    id
+    title
+    createdBy {
+        ...CreatedByInfo
+    }
+    doc {
+        ...ImageInfo
+    }
+    docId
+    type
+    createdAt
+}
+
+fragment ConversationItemInfo on ConversationItem {
+    id
+    message
+    createdById
+    createdBy {
+        ...CreatedByInfo
+    }
+    createdAt
+}
+
+query Conversations($input: ConversationsInputType) {
+    conversations(input: $input) {
+        data {
+            ...ConversationInfo
+        }
+        pagination {
+            ...PaginationInfo
+        }
+    }
+}
+
+query Conversation($conversationId: ID) {
+    conversation(conversationId: $conversationId) {
+        ...ConversationInfo
+    }
+}
+
+mutation AddConversation($input: AddConversationInputType) {
+    addConversation(input: $input) {
+        ...ConversationInfo
+    }
+}
+
+mutation UpdateConversation($input: UpdateConversationInputType) {
+    updateConversation(input: $input) {
+        ...ConversationInfo
+    }
+}
+
+query ListMessageConversation($input: ListMessageConversationInputType) {
+    listMessageConversation(input: $input) {
+        data {
+            ...ConversationItemInfo
+        }
+        pagination {
+            ...PaginationInfo
+        }
+    }
+}
+
+mutation DeleteConversation($conversationId: ID) {
+    deleteConversation(conversationId: $conversationId)
+}
+
+mutation AddMessageInConversation($input: ConversationItemInputType) {
+    addMessageInConversation(input: $input) {
+        ...ConversationItemInfo
+    }
+}
+
+mutation DeleteMessageInConversation($messageId: ID!) {
+    deleteMessageInConversation(messageId: $messageId)
+}
+
+query ConversationDefault($projectId: ID) {
+    conversationDefault(projectId: $projectId) {
+        ...ConversationInfo
+    }
+}
+
+mutation GetTotalTokenDoc($url: String) {
+    getTotalTokenDoc(url: $url) {
+        totalToken
+        totalPrice
+    }
+}
+
+mutation EmbeddedDocument($documentId: ID!) {
+    embeddedDocument(documentId: $documentId)
+}
+
+mutation ReSearchDocument($input: ReSearchDocumentInputType) {
+    reSearchDocument(input: $input)
+}

@@ -1,0 +1,13 @@
+fragment CodeInfo on Code {
+    id
+    code
+    email
+    createdAt
+    isExpired
+}
+
+query Code($code: String!) {
+    code(code: $code) {
+        ...CodeInfo
+    }
+}

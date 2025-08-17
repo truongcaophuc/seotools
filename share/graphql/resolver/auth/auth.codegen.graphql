@@ -1,0 +1,39 @@
+query Me {
+    me {
+        ...UserInfo
+    }
+}
+
+mutation Login($input: LoginInputType) {
+    login(input: $input) {
+        ...UserInfo
+    }
+}
+
+mutation SignupVerify($email: String!) {
+    signupVerify(email: $email)
+}
+
+mutation SignupWithCode($input: SignupWithCodeInputType) {
+    signUpWithCode(input: $input) {
+        ...UserInfo
+    }
+}
+
+mutation Signup($input: SignupInputType) {
+    signUp(input: $input) {
+        ...UserInfo
+    }
+}
+
+mutation ForgotPassword($input: ForgotPasswordInputType) {
+    forgotPassword(input: $input)
+}
+    
+mutation ResetPassword($input: ResetPasswordInputType) {
+    resetPassword(input: $input)
+}
+
+mutation Logout {
+    logout
+}

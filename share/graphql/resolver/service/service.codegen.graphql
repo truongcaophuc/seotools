@@ -1,0 +1,84 @@
+fragment ServiceInfo on Service {
+    id
+    title
+    slug
+    categoryId
+    category {
+        id
+        title
+        slug
+    }
+    customFields {
+        ...CustomFieldInfo
+    }
+    model
+    description
+    createdAt
+}
+
+fragment ServiceDashboardInfo on Service {
+    id
+    title
+    slug
+    categoryId
+    category {
+        id
+        title
+        slug
+    }
+    customFields {
+        ...CustomFieldInfo
+    }
+    model
+    isDelete
+    leadingSentence
+    leadingLanguage
+    leadingStyleContent
+    systemMessage
+    description
+    createdAt
+}
+
+query Services($input: ServicesInputType) {
+    services(input: $input) {
+        data {
+            ...ServiceInfo
+        }
+        pagination {
+            ...PaginationInfo
+        }
+    }
+}
+
+query ServicesDashboard($input: ServicesInputType) {
+    servicesDashboard(input: $input) {
+        data {
+            ...ServiceDashboardInfo
+        }
+        pagination {
+            ...PaginationInfo
+        }
+    }
+}
+
+query Service($id: String!) {
+    service(id: $id) {
+        ...ServiceInfo
+    }
+}
+
+mutation AddService($input: DataServiceInputType) {
+    addService(input: $input) {
+        ...ServiceInfo
+    }
+}
+
+mutation UpdateService($input: UpdateServiceInputType) {
+    updateService(input: $input) {
+        ...ServiceInfo
+    }
+}
+
+mutation DeleteService($id: String!) {
+    deleteService(id: $id)
+}

@@ -1,0 +1,23 @@
+.BottomPlugin {
+    border-top: 1px solid #eee;
+    background-color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    height: 36px;
+    padding: 0 10px;
+    align-items: center;
+    gap: 10px;
+    color: #444
+}
+
+.BottomPlugin span {
+    display: inline-block;
+    border-right: 1px solid #ddd;
+    padding-right: 10px;
+
+}
+
+.BottomPlugin span:last-child {
+    border: none;
+}

@@ -1,0 +1,58 @@
+html {
+    scroll-behavior: smooth;
+}
+
+.remirror-theme .remirror-editor-wrapper {
+    height: calc(100vh - 250px);
+}
+
+.remirror-theme .ProseMirror {
+    height: 100%;
+    box-shadow: none !important;
+    border: 1px solid #ddd;
+    overflow-y: auto !important;
+}
+
+.loader {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: block;
+    margin: 15px auto;
+    position: relative;
+    color: gray;
+    box-sizing: border-box;
+    animation: animloader 1s linear infinite;
+}
+
+@keyframes animloader {
+    0% {
+        box-shadow: 14px 0 0 -2px, 38px 0 0 -2px, -14px 0 0 -2px, -38px 0 0 -2px;
+    }
+    25% {
+        box-shadow: 14px 0 0 -2px, 38px 0 0 -2px, -14px 0 0 -2px, -38px 0 0 2px;
+    }
+    50% {
+        box-shadow: 14px 0 0 -2px, 38px 0 0 -2px, -14px 0 0 2px, -38px 0 0 -2px;
+    }
+    75% {
+        box-shadow: 14px 0 0 2px, 38px 0 0 -2px, -14px 0 0 -2px, -38px 0 0 -2px;
+    }
+    100% {
+        box-shadow: 14px 0 0 -2px, 38px 0 0 2px, -14px 0 0 -2px, -38px 0 0 -2px;
+    }
+}
+
+.SfxModal-Wrapper {
+    z-index: 1700 !important
+}
+
+@media (max-width: 991px) {
+    .facebookChat {
+        display: none
+    }
+    
+}
+
+@import './markdown.scss';
+@import './editor/editor.scss';

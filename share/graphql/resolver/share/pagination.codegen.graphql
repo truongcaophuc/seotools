@@ -1,0 +1,5 @@
+fragment PaginationInfo on PaginationType {
+    total
+    page
+    perPage
+}

@@ -1,0 +1,4 @@
+fragment CreatedByInfo on User {
+    id 
+    fullname
+}

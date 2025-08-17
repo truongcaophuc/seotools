@@ -1,0 +1,41 @@
+fragment ContentInfo on Content {
+    id
+    title
+    content
+    link
+    createdBy {
+        ...CreatedByInfo
+    }
+    service {
+        ...ServiceInfo
+    }
+    createdAt
+}
+
+query Contents($input: ContentsInputType) {
+    contents(input: $input) {
+        data {
+            ...ContentInfo
+        }
+        pagination {
+            ...PaginationInfo
+        }
+    }
+}
+
+query Content($id: ID!) {
+    content(id: $id) {
+        ...ContentInfo 
+    }
+}
+
+mutation UpdateContent($input: UpdateContentInputType) {
+    updateContent(input: $input) {
+        ...ContentInfo
+    }
+}
+
+
+mutation DeleteContent($id: ID!) {
+    deleteContent(id: $id)
+}

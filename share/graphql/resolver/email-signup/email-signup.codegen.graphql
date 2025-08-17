@@ -1,0 +1,9 @@
+fragment EmailSignupInfo on EmailSignup {
+    email 
+}
+
+query GetEmailSignup($token: String!) {
+    getEmailSignup(token: $token) {
+        ...EmailSignupInfo
+    } 
+}

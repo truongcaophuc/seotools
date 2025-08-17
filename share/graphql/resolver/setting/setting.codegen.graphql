@@ -1,0 +1,27 @@
+fragment SettingInfo on Setting {
+    id 
+    priceToken
+    documentLink
+    numberOfTimeUseGpt4
+    timeTrial
+    bonusBalanceSignup
+    fieldTitle
+    fieldDescription
+    fieldMainKeyword
+    fieldSubKeyword
+    fieldParagraph
+    fieldLanguage
+    fieldStyleContent
+}
+
+query Setting{
+    setting {
+        ...SettingInfo
+    }
+}
+
+mutation UpdateSetting($input: UpdateSettingInputType) {
+    updateSetting(input: $input) {
+        ...SettingInfo
+    }
+}

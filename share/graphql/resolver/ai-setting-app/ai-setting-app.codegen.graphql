@@ -1,0 +1,18 @@
+fragment AiSettingAppInfo on AiSettingApp {
+    id
+    type
+    leadingSentence
+    max_tokens
+}
+
+query AiSettingApps {
+    aiSettingApps {
+        ...AiSettingAppInfo
+    }
+}
+
+mutation CreateAiSettingApp($input: CreateAiSettingAppInputType) {
+    createAiSettingApp(input: $input) {
+        ...AiSettingAppInfo
+    }
+}

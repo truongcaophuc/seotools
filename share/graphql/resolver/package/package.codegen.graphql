@@ -1,0 +1,78 @@
+fragment PackageInfo on Package {
+    id
+    name
+    type
+    packageItems {
+        ...PackageItemInfo
+    }
+    isActive
+    isShow
+    createdAt
+}
+
+fragment PackageItemInfo on PackageItem {
+    id
+    price
+    freeTime
+    isActive
+    packageParentId
+    packageParent {
+        id
+        name
+        type
+    }
+    packagePeriodId
+    packagePeriod {
+        ...PackagePeriodInfo
+    }
+    content
+    numberWord
+    createdAt
+}
+
+fragment PackagePeriodInfo on PackagePeriod {
+    id
+    name
+    time
+    order
+    isActive
+    createdAt
+}
+
+query Packages {
+    packages {
+        ...PackageInfo
+    }
+}
+
+query PackagePeriods {
+    packagePeriods {
+        ...PackagePeriodInfo
+    }
+}
+
+query Pricing {
+    pricing {
+        packages {
+            ...PackageInfo
+        }
+    }
+}
+
+mutation UpdatePackage($input: UpdatePackageInputType) {
+    updatePackage(input: $input) {
+        ...PackageInfo
+    }
+}
+
+mutation UpdatePackagePeriod($input: UpdatePackagePeriodInputType) {
+    updatePackagePeriod(input: $input) {
+        ...PackagePeriodInfo
+    }
+}
+
+mutation UpdatePackageItem($input: UpdatePackageItemInputType) {
+    updatePackageItem(input: $input) {
+        ...PackageItemInfo
+    }
+}

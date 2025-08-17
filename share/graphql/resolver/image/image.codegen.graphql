@@ -1,0 +1,91 @@
+fragment ImageInfo on Image {
+    id
+    url
+    src
+    name
+    description
+    type
+    isEmbedded
+    folder {
+        ...FolderImageInfo
+    }
+    createdAt
+}
+
+fragment FolderImageInfo on FolderImage {
+    id
+    name
+    slug
+    type
+    description
+    totalImage
+    createdAt
+}
+
+query Images($input: ImagesInputType) {
+    images(input: $input) {
+        data {
+            ...ImageInfo
+        }
+        pagination {
+            ...PaginationInfo
+        }
+    }
+}
+
+query Image($id: String) {
+    image(id: $id) {
+        ...ImageInfo
+    }
+}
+
+query FolderImages($input: FolderImagesInputType) {
+    folderImages(input: $input) {
+        data {
+            ...FolderImageInfo
+        }
+        pagination {
+            ...PaginationInfo
+        }
+    }
+}
+
+query FolderImage($id: String) {
+    folderImage(id: $id) {
+        ...FolderImageInfo
+    }
+}
+
+mutation UpdateImage($input: UpdateImageInputType) {
+    updateImage(input: $input) {
+        ...ImageInfo
+    }
+}
+
+mutation DeleteImage($id: String) {
+    deleteImage(id: $id)
+}
+
+mutation AddFolderImage($input: AddFolderImageInputType) {
+    addFolderImage(input: $input) {
+        ...FolderImageInfo
+    }
+}
+
+
+mutation DeleteFolderImage($id: ID!) {
+    deleteFolderImage(id: $id)
+}
+
+mutation UpdateFolderImage($input: UpdateFolderImageInputType) {
+    updateFolderImage(input: $input) {
+        ...FolderImageInfo
+    }
+}
+
+
+mutation GenerateImageWithReplicate($prompt: String) {
+    generateImageWithReplicate(prompt: $prompt)
+}
+
+

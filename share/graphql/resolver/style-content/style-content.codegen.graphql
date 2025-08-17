@@ -1,0 +1,23 @@
+fragment StyleContentInfo on StyleContent {
+    id 
+    label 
+    value
+    createdAt
+}
+
+query StyleContents {
+    styleContents {
+        ...StyleContentInfo
+    }
+}
+
+mutation UpdateStyleContent($input: UpdateStyleContentInputType) {
+    updateStyleContent(input: $input) {
+        ...StyleContentInfo
+    }
+}
+
+
+mutation DeleteStyleContent($id: ID!) {
+    deleteStyleContent(id: $id) 
+}

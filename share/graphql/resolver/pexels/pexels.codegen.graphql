@@ -1,0 +1,17 @@
+fragment PexelsInfo on Pexels {
+    id
+    avg_color
+    alt
+    src
+}
+
+query PexelsPhotos($input: PexelsPhotosInputType) {
+    pexelsPhotos(input: $input) {
+        data {
+            ...PexelsInfo
+        }
+        pagination {
+            ...PaginationInfo
+        }
+    }
+}

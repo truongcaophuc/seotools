@@ -1,0 +1,50 @@
+fragment ServiceCategoryInfo on ServiceCategory {
+    id
+    title
+    slug
+    description
+    order
+    createdAt
+    services {
+        ...ServiceInfo
+    }
+}
+
+query ServiceCategories($input: ServiceCategoriesInputType) {
+    serviceCategories(input: $input) {
+        data {
+            ...ServiceCategoryInfo
+        }
+        pagination {
+            ...PaginationInfo
+        }
+    }
+}
+
+query ServiceCategoriesCustomer($search: String) {
+    serviceCategoriesCustomer(search: $search) {
+           ...ServiceCategoryInfo
+    }
+}
+
+query ServiceCategory($id: String!) {
+    serviceCategory(id: $id) {
+        ...ServiceCategoryInfo
+    }
+}
+
+mutation AddServiceCategory($input: AddServiceCategoryInputType) {
+    addServiceCategory(input: $input) {
+        ...ServiceCategoryInfo
+    }
+}
+
+mutation UpdateServiceCategory($input: UpdateServiceCategoryInputType) {
+    updateServiceCategory(input: $input) {
+        ...ServiceCategoryInfo
+    }
+}
+
+mutation DeleteServiceCategory($id: String!) {
+    deleteServiceCategory(id: $id)
+}

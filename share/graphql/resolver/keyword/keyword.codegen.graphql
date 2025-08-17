@@ -1,0 +1,71 @@
+fragment SubKeywordInfo on Keyword {
+    id
+    value
+    subKeywords {
+        id
+        value
+    }
+}
+
+fragment ParentKeywordInfo on Keyword {
+    id
+    value
+}
+
+fragment KeywordInfo on Keyword {
+    id
+    value
+    projectId
+    description
+    subKeywords {
+        ...SubKeywordInfo
+    }
+    parentKeyword {
+        ...ParentKeywordInfo
+    }
+    createdAt
+}
+
+query Keywords($input: KeywordsInputType) {
+    keywords(input: $input) {
+        data {
+            ...KeywordInfo
+        }
+        pagination {
+            ...PaginationInfo
+        }
+    }
+}
+
+query SubKeywords($input: SubKeywordsInputType) {
+    subKeywords(input: $input) {
+        data {
+            ...KeywordInfo
+        }
+        pagination {
+            ...PaginationInfo
+        }
+    }
+}
+
+query Keyword($id: String!) {
+    keyword(id: $id) {
+        ...KeywordInfo
+    }
+}
+
+mutation AddKeyword($input: KeywordDataInputType) {
+    addKeyword(input: $input) {
+        ...KeywordInfo
+    }
+}
+
+mutation UpdateKeyword($input: UpdateKeywordInputType) {
+    updateKeyword(input: $input) {
+        ...KeywordInfo
+    }
+}
+
+mutation DeleteKeyword($id: String!) {
+    deleteKeyword(id: $id)
+}

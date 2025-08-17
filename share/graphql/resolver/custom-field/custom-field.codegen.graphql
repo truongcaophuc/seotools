@@ -1,0 +1,25 @@
+fragment CustomFieldInfo on CustomField {
+    id
+    title
+    field
+    description
+    active
+    inputType
+    createdAt
+}
+
+query CustomFields {
+    customFields {
+        ...CustomFieldInfo
+    }
+}
+
+mutation AddCustomField($input: AddCustomFieldInputType) {
+    addCustomField(input: $input) {
+        ...CustomFieldInfo
+    }
+}
+
+mutation DeleteCustomField($id: ID!) {
+    deleteCustomField(id: $id)
+}

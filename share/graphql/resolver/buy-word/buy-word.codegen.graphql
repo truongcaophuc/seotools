@@ -1,0 +1,39 @@
+fragment BuyWordInfo on BuyWord {
+    id
+    workspace {
+        id
+        name
+    }
+    createdBy {
+        ...CreatedByInfo
+    }
+    confirmBy {
+        ...CreatedByInfo
+    }
+    price
+    numberWord
+    isConfirm
+    isCancel
+    createdAt
+}
+
+query ListBuyWordAdmin($input: ListBuyWordAdminInputType) {
+    listBuyWordAdmin(input: $input) {
+        data {
+            ...BuyWordInfo
+        }
+        pagination {
+            ...PaginationInfo
+        }
+    }
+}
+
+mutation RequestBuyWord($input: RequestBuyWordInputType) {
+    requestBuyWord(input: $input) {
+        ...BuyWordInfo
+    }
+}
+
+mutation ConfirmRequestBuyWord($input: ConfirmRequestBuyWordInputType) {
+    confirmRequestBuyWord(input: $input)
+}

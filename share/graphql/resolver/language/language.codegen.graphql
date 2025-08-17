@@ -1,0 +1,25 @@
+
+fragment LanguageInfo on Language {
+    id 
+    label 
+    value
+    isDefault
+    createdAt
+}
+
+query Languages {
+    languages {
+        ...LanguageInfo
+    }
+}
+
+mutation UpdateLanguage($input: UpdateLanguageInputType) {
+    updateLanguage(input: $input) {
+        ...LanguageInfo
+    }
+}
+
+
+mutation DeleteLanguage($id: ID!) {
+    deleteLanguage(id: $id) 
+}

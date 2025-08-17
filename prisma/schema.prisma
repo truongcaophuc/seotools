@@ -1,0 +1,472 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mongodb"
+    url      = env("DATABASE_URL")
+}
+
+model Setting {
+    id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+    priceToken          Float?
+    bonusBalanceSignup  Float?
+    numberOfTimeUseGpt4 Float?
+    timeTrial           Int?
+    fieldTitle          String?
+    fieldDescription    String?
+    fieldMainKeyword    String?
+    fieldSubKeyword     String?
+    fieldParagraph      String?
+    fieldLanguage       String?
+    fieldStyleContent   String?
+    documentLink        String?
+    createdAt           DateTime @default(now())
+    updatedAt           DateTime @updatedAt
+}
+
+model AiSettingApp {
+    id              String           @id @default(auto()) @map("_id") @db.ObjectId
+    type            TypeAiSettingApp
+    leadingSentence String?
+    max_tokens      Int?             @default(80)
+    createdAt       DateTime         @default(now())
+    updatedAt       DateTime         @updatedAt
+}
+
+enum TypeAiSettingApp {
+    Title
+    Description
+    Outline
+    Rewrite
+    Insert
+    Write
+    Content
+}
+
+model Service {
+    id                  String           @id @default(auto()) @map("_id") @db.ObjectId
+    title               String
+    slug                String           @unique
+    customFieldIds      String[]         @db.ObjectId
+    leadingSentence     String?
+    leadingLanguage     String?
+    leadingStyleContent String?
+    systemMessage       String?
+    description         String?
+    model               ModelAi?
+    isDelete            Boolean?         @default(false)
+    categoryId          String?          @db.ObjectId
+    category            ServiceCategory? @relation(fields: [categoryId], references: [id])
+    createdAt           DateTime         @default(now())
+    updatedAt           DateTime         @updatedAt
+    contents            Content[]
+}
+
+enum ModelAi {
+    Davinci
+    GPT
+    GPT4
+}
+
+enum CustomerFilterServiceInputType {
+    Input
+    Textarea
+    Language
+    StyleContent
+}
+
+model CustomFieldService {
+    id          String                          @id @default(auto()) @map("_id") @db.ObjectId
+    title       String                          @unique
+    field       String                          @unique
+    description String?
+    active      Boolean?                        @default(true)
+    isDelete    Boolean?
+    inputType   CustomerFilterServiceInputType? @default(Input)
+    createdAt   DateTime                        @default(now())
+    updatedAt   DateTime                        @updatedAt
+}
+
+model ServiceCategory {
+    id          String    @id @default(auto()) @map("_id") @db.ObjectId
+    title       String
+    slug        String    @unique
+    description String?
+    order       Int?
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    services    Service[]
+}
+
+model Workspace {
+    id                 String            @id @default(auto()) @map("_id") @db.ObjectId
+    name               String
+    bucket             String?
+    description        String?
+    isTrial            Boolean?          @default(true)
+    ownerId            String            @db.ObjectId
+    owner              User              @relation(fields: [ownerId], references: [id])
+    balance            Float             @default(0)
+    expiredAt          DateTime? // for trial account
+    workspacePackageId String?           @db.ObjectId
+    workspacePackage   WorkspacePackage? @relation(fields: [workspacePackageId], references: [id])
+    createdAt          DateTime          @default(now())
+    updatedAt          DateTime          @updatedAt
+}
+
+model WorkspacePackage {
+    id               String      @id @default(auto()) @map("_id") @db.ObjectId
+    workspaceId      String      @db.ObjectId
+    packageItemId    String      @db.ObjectId
+    packageItem      PackageItem @relation(fields: [packageItemId], references: [id])
+    isActive         Boolean     @default(false)
+    startDateWord    DateTime    @default(now())
+    numberWord       Int
+    time             Int // month
+    freeTime         Int // month
+    timeUseGpt4      Int?
+    startDateUseGpt4 DateTime?   @default(now())
+    createdAt        DateTime    @default(now())
+    updatedAt        DateTime    @updatedAt
+    workspaces       Workspace[]
+}
+
+model User {
+    id                String             @id @default(auto()) @map("_id") @db.ObjectId
+    email             String             @unique
+    username          String?            @unique
+    fullname          String?
+    password          String
+    role              Role               @default(User)
+    workspaceId       String?            @db.ObjectId
+    phoneNumber       String?
+    defaultProjectId  String?
+    defaultTeamId     String?
+    isDeveloper       Boolean?           @default(false)
+    createdAt         DateTime           @default(now())
+    updatedAt         DateTime           @updatedAt
+    active            Boolean            @default(true)
+    isVerify          Boolean?           @default(false)
+    teams             Team[]
+    workspaces        Workspace[]
+    conversationItems ConversationItem[]
+    conversations     Conversation[]
+    styleContents     StyleContent[]
+    languages         Language[]
+    contents          Content[]
+}
+
+model EmailSignup {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    email     String   @unique
+    code      String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Team {
+    id          String    @id @default(auto()) @map("_id") @db.ObjectId
+    name        String
+    ownerId     String    @db.ObjectId
+    owner       User?     @relation(fields: [ownerId], references: [id])
+    workspaceId String    @db.ObjectId
+    active      Boolean?  @default(true)
+    default     Boolean?  @default(false)
+    memberIds   String[]  @db.ObjectId
+    project     Project[]
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+}
+
+model Project {
+    id          String     @id @default(auto()) @map("_id") @db.ObjectId
+    teamId      String?    @db.ObjectId
+    team        Team?      @relation(fields: [teamId], references: [id])
+    workspaceId String     @db.ObjectId
+    name        String
+    url         String?
+    content     Content[]
+    document    Document[]
+    description String?
+    active      Boolean?   @default(true)
+    default     Boolean?   @default(false)
+    createdAt   DateTime   @default(now())
+    updatedAt   DateTime   @updatedAt
+}
+
+enum ConversationType {
+    Chat
+    Research
+}
+
+model Conversation {
+    id          String             @id @default(auto()) @map("_id") @db.ObjectId
+    title       String
+    projectId   String
+    createdById String             @db.ObjectId
+    createdBy   User               @relation(fields: [createdById], references: [id])
+    isDefault   Boolean?
+    type        ConversationType?  @default(Chat)
+    docId       String?            @db.ObjectId
+    doc         Image?             @relation(fields: [docId], references: [id])
+    createdAt   DateTime           @default(now())
+    updatedAt   DateTime           @updatedAt
+    items       ConversationItem[]
+}
+
+model ConversationItem {
+    id             String        @id @default(auto()) @map("_id") @db.ObjectId
+    conversationId String        @db.ObjectId
+    conversation   Conversation? @relation(fields: [conversationId], references: [id])
+    message        String
+    createdById    String?       @db.ObjectId
+    createdBy      User?         @relation(fields: [createdById], references: [id])
+    createdAt      DateTime      @default(now())
+    updatedAt      DateTime      @updatedAt
+}
+
+model Content {
+    id          String   @id @default(auto()) @map("_id") @db.ObjectId
+    workspaceId String   @db.ObjectId
+    projectId   String   @db.ObjectId
+    project     Project  @relation(fields: [projectId], references: [id])
+    serviceId   String   @db.ObjectId
+    service     Service? @relation(fields: [serviceId], references: [id])
+    content     String?  @default("")
+    title       String
+    link        String?
+    images      String[]
+    createdById String?  @db.ObjectId
+    createdBy   User?    @relation(fields: [createdById], references: [id])
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+}
+
+model Document {
+    id          String   @id @default(auto()) @map("_id") @db.ObjectId
+    userId      String   @db.ObjectId
+    projectId   String   @db.ObjectId
+    project     Project  @relation(fields: [projectId], references: [id])
+    workspaceId String   @db.ObjectId
+    title       String?
+    content     String?
+    outline     String?
+    url         String?
+    slug        String?
+    description String?
+    keywords    String?
+    keywordId   String?  @db.ObjectId
+    isDraft     Boolean? @default(false)
+    parentId    String?  @db.ObjectId
+    createdById String?  @db.ObjectId
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+}
+
+model Keyword {
+    id          String   @id @default(auto()) @map("_id") @db.ObjectId
+    projectId   String   @db.ObjectId
+    workspaceId String   @db.ObjectId
+    value       String?
+    parentId    String?  @db.ObjectId
+    isMain      Boolean? @default(false)
+    description String?
+    isDelete    Boolean? @default(false)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+}
+
+enum TypeFile {
+    Image
+    Document
+}
+
+model FolderImage {
+    id          String    @id @default(auto()) @map("_id") @db.ObjectId
+    projectId   String    @db.ObjectId
+    workspaceId String    @db.ObjectId
+    name        String
+    slug        String?
+    description String?
+    type        TypeFile? @default(Image)
+    isPublic    Boolean?  @default(false)
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    files       Image[]
+}
+
+model Image {
+    id            String         @id @default(auto()) @map("_id") @db.ObjectId
+    name          String?
+    projectId     String?        @db.ObjectId
+    folderId      String?        @db.ObjectId
+    folder        FolderImage?   @relation(fields: [folderId], references: [id])
+    workspaceId   String?        @db.ObjectId
+    url           String
+    description   String?
+    size          Int?
+    type          TypeFile?      @default(Image)
+    isPublic      Boolean?       @default(false)
+    uploadById    String?        @db.ObjectId
+    isEmbedded    Boolean?       @default(false)
+    isDelete      Boolean?       @default(false)
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
+    conversations Conversation[]
+}
+
+model PaymentHistory {
+    id              String          @id @default(auto()) @map("_id") @db.ObjectId
+    packageItemId   String?         @db.ObjectId
+    workspaceId     String          @db.ObjectId
+    amount          Int
+    isConfirm       Boolean         @default(false)
+    isCancel        Boolean?        @default(false)
+    cancelById      String?         @db.ObjectId
+    createdById     String          @db.ObjectId
+    confirmById     String?         @db.ObjectId
+    confirmAt       String?
+    transactionType TransactionType
+    createdAt       DateTime        @default(now())
+    updatedAt       DateTime        @updatedAt
+}
+
+model BuyWord {
+    id              String          @id @default(auto()) @map("_id") @db.ObjectId
+    workspaceId     String          @db.ObjectId
+    numberWord      Int
+    price           Int
+    transactionType TransactionType
+    isConfirm       Boolean         @default(false)
+    isCancel        Boolean?        @default(false)
+    cancelById      String?         @db.ObjectId
+    createdById     String          @db.ObjectId
+    confirmById     String?         @db.ObjectId
+    confirmAt       String?
+    createdAt       DateTime        @default(now())
+    updatedAt       DateTime        @updatedAt
+}
+
+model RequestHistory {
+    id          String   @id @default(auto()) @map("_id") @db.ObjectId
+    userId      String   @db.ObjectId
+    tokens      Int
+    price       Float
+    workspaceId String   @db.ObjectId
+    projectId   String?  @db.ObjectId
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+}
+
+model StyleContent {
+    id          String   @id @default(auto()) @map("_id") @db.ObjectId
+    label       String
+    value       String?
+    createdById String   @db.ObjectId
+    createdBy   User     @relation(fields: [createdById], references: [id])
+    isDelete    Boolean? @default(false)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+}
+
+model Language {
+    id          String   @id @default(auto()) @map("_id") @db.ObjectId
+    label       String
+    value       String?
+    createdById String   @db.ObjectId
+    createdBy   User     @relation(fields: [createdById], references: [id])
+    isDelete    Boolean? @default(false)
+    isDefault   Boolean? @default(false)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+}
+
+model Code {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    code      String
+    email     String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model PageChannel {
+    id            String      @id @default(auto()) @map("_id") @db.ObjectId
+    workspaceId   String      @db.ObjectId
+    name          String
+    pageChannelId String?
+    token         String?
+    username      String?
+    url           String?
+    password      String?
+    type          ChannelType
+    isActive      Boolean
+    createdAt     DateTime    @default(now())
+    updatedAt     DateTime    @updatedAt
+}
+
+model Package {
+    id           String        @id @default(auto()) @map("_id") @db.ObjectId
+    name         String
+    type         PackageType   @unique
+    isActive     Boolean       @default(true)
+    isShow       Boolean?      @default(true)
+    createdAt    DateTime      @default(now())
+    updatedAt    DateTime      @updatedAt
+    packageItems PackageItem[]
+}
+
+model PackagePeriod {
+    id          String        @id @default(auto()) @map("_id") @db.ObjectId
+    name        String
+    time        Int
+    order       Int
+    isActive    Boolean       @default(true)
+    createdAt   DateTime      @default(now())
+    updatedAt   DateTime      @updatedAt
+    PackageItem PackageItem[]
+}
+
+model PackageItem {
+    id                String             @id @default(auto()) @map("_id") @db.ObjectId
+    freeTime          Int
+    price             Int
+    isActive          Boolean            @default(true)
+    packageParentId   String             @db.ObjectId
+    packageParent     Package            @relation(fields: [packageParentId], references: [id])
+    packagePeriodId   String?            @db.ObjectId
+    packagePeriod     PackagePeriod?     @relation(fields: [packagePeriodId], references: [id])
+    content           String?
+    numberWord        Int?
+    createdAt         DateTime           @default(now())
+    updatedAt         DateTime           @updatedAt
+    workspacePackages WorkspacePackage[]
+}
+
+enum PackageType {
+    Trial
+    Basic
+    Premium
+}
+
+enum Role {
+    RootAdmin
+    Admin
+    AdminStaff
+    User
+    Staff
+}
+
+enum ChannelType {
+    Facebook
+    Zalo
+    Wordpress
+}
+
+enum PaymentType {
+    TransferPayment
+}
+
+enum TransactionType {
+    TransferPayment
+}

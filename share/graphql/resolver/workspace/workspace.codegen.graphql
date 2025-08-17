@@ -1,0 +1,73 @@
+fragment WorkspaceInfo on Workspace {
+    id
+    name
+    description
+    balance
+    bucket
+    owner {
+        ...UserInfo
+    }
+    isOwner
+    expiredAt
+    isTrial
+    timeTrial
+    workspacePackage {
+        ...WorkspacePackageInfo
+    }
+    createdAt
+}
+
+fragment WorkspacePackageInfo on WorkspacePackage {
+    id
+    packageItemId
+    packageItem {
+        ...PackageItemInfo
+    }
+    isActive
+    startDateWord
+    numberWord
+    timeUseGpt4
+    time
+    freeTime
+    createdAt
+}
+
+query Workspace($id: String) {
+    workspace {
+        ...WorkspaceInfo
+    }
+}
+
+mutation UpdateWorkspace($input: UpdateWorkspaceInputType) {
+    updateWorkspace(input: $input) {
+        ...WorkspaceInfo
+    }
+}
+
+mutation UpdateWorkspaceAdmin($input: UpdateWorkspaceAdminInputType) {
+    updateWorkspaceAdmin(input: $input) {
+        ...WorkspaceInfo
+    }
+}
+
+mutation PayRequestAiContent($token: Int, $content: String) {
+    payRequestAiContent(token: $token, content: $content)
+}
+
+mutation ChangeExpiredTimeWorkspace(
+    $input: ChangeExpiredTimeWorkspaceInputType
+) {
+    changeExpiredTimeWorkspace(input: $input) {
+        ...WorkspaceInfo
+    }
+}
+
+mutation PayContentAI($content: String) {
+    payContentAI(content: $content)
+}
+
+mutation UpdateTimeUseGpt4($workspacePackageId: ID!) {
+    updateTimeUseGpt4(workspacePackageId: $workspacePackageId) {
+        ...WorkspacePackageInfo
+    }
+}

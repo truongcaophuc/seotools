@@ -1,0 +1,58 @@
+fragment MemberInfo on User {
+    id
+    fullname
+    email
+    role
+    createdAt
+}
+
+fragment TeamInfo on Team {
+    id
+    name
+    ownerId
+    members {
+        ...MemberInfo
+    }
+    default
+    createdAt
+}
+
+query Teams {
+    teams {
+        ...TeamInfo
+    }
+}
+
+query Team($id: String!) {
+    team(id: $id) {
+        ...TeamInfo
+    }
+}
+
+query TeamDefault {
+    teamDefault {
+        ...TeamInfo
+    }
+}
+
+mutation AddTeam($input: DataTeamInputType) {
+    addTeam(input: $input) {
+        ...TeamInfo
+    }
+}
+
+mutation UpdateTeam($input: UpdateTeamInputType) {
+    updateTeam(input: $input) {
+        ...TeamInfo
+    }
+}
+
+mutation DeleteTeam($teamId: ID!) {
+    deleteTeam(teamId: $teamId)
+}
+
+mutation ChangeDefaultTeam($teamId: ID) {
+    changeDefaultTeam(teamId: $teamId) {
+        ...UserInfo
+    }
+}

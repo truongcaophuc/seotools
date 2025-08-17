@@ -1,0 +1,65 @@
+fragment PaymentHistoryInfo on PaymentHistory {
+    id
+    amount
+    transactionType
+    isConfirm
+    isCancel
+    createdById
+    createdBy {
+        ...CreatedByInfo
+    }
+    confirmAt
+    confirmById
+    confirmBy {
+        ...CreatedByInfo
+    }
+    cancelBy {
+        ...CreatedByInfo
+    }
+    packageItem {
+        ...PackageItemInfo
+    }
+    createdAt
+}
+
+mutation CreatePaymentHistory($input: CreatePaymentHistoryInputType) {
+    createPaymentHistory(input: $input)
+}
+
+query PaymentHistoriesUser($input: PaymentHistoriesInputType) {
+    paymentHistoriesUser(input: $input) {
+        data {
+            ...PaymentHistoryInfo
+        }
+        pagination {
+            ...PaginationInfo
+        }
+    }
+}
+
+query PaymentHistoriesAdmin($input: PaymentHistoriesAdminInputType) {
+    paymentHistoriesAdmin(input: $input) {
+        data {
+            ...PaymentHistoryInfo
+        }
+        pagination {
+            ...PaginationInfo
+        }
+    }
+}
+
+mutation ConfirmPaymentHistory($id: ID!) {
+    confirmPaymentHistory(id: $id) {
+        ...PaymentHistoryInfo
+    }
+}
+
+mutation CancelPaymentHistory($id: ID!) {
+    cancelPaymentHistory(id: $id) {
+        ...PaymentHistoryInfo
+    }
+}
+
+mutation DeletePaymentHistory($id: ID!) {
+    deletePaymentHistory(id: $id)
+}

@@ -1,0 +1,40 @@
+fragment PageChannelInfo on PageChannel {
+    id
+    name
+    isActive
+    pageChannelId
+    url
+    username
+    password
+    type
+    createdAt
+}
+
+query PageChannels($input: PageChannelsInputType) {
+    pageChannels(input: $input) {
+        data {
+            ...PageChannelInfo
+        }
+        pagination {
+            ...PaginationInfo
+        }
+    }
+}
+
+mutation ConnectFacebookPage {
+    connectFacebookPage
+}
+
+mutation SyncContentPageChannel($input: SyncContentPageChannelInputType) {
+    syncContentPageChannel(input: $input)
+}
+
+mutation UpdatePageChannel($input: UpdatePageChannelInputType) {
+    updatePageChannel(input: $input) {
+        ...PageChannelInfo
+    }
+}
+
+mutation DeletePageChannel($id: ID) {
+    deletePageChannel(id: $id)
+}

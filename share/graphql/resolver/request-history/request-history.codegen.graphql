@@ -1,0 +1,26 @@
+fragment RequestHistoryInfo on RequestHistory {
+    id 
+    tokens 
+    price
+    user {
+        ...CreatedByInfo
+    }
+    workspace {
+        ...WorkspaceInfo
+    }
+    project {
+        ...ProjectInfo
+    }
+    createdAt
+}
+
+query RequestHistories($input: RequestHistoriesInputType) {
+    requestHistories(input: $input) {
+        data {
+            ...RequestHistoryInfo
+        }
+            pagination {
+            ...PaginationInfo
+        }
+    }
+}
