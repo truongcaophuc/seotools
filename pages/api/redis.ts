@@ -2,7 +2,7 @@ import prisma from '@lib/prisma';
 import { sessionOptions } from '@lib/session';
 import { serviceRedis } from '@share/helps/redis';
 import { withIronSessionApiRoute } from 'iron-session/next';
-import cors from 'micro-cors';
+import { getCorsMiddleware } from '@lib/cors';
 
 async function handler(req, res) {
     const response = await prisma.service.findMany({
@@ -18,4 +18,4 @@ async function handler(req, res) {
     return res.json({ services });
 }
 
-export default withIronSessionApiRoute(cors()(handler), sessionOptions);
+export default withIronSessionApiRoute(getCorsMiddleware()(handler), sessionOptions);

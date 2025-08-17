@@ -3,6 +3,7 @@ import { sessionOptions } from '@lib/session';
 import { supabaseClient } from '@lib/supabase';
 import { encode } from 'gpt-3-encoder';
 import { withIronSessionApiRoute } from 'iron-session/next';
+import { getCorsMiddleware } from '@lib/cors';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Configuration, OpenAIApi } from 'openai';
 import stripIndent from 'strip-indent';
@@ -144,4 +145,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
     }
 }
 
-export default withIronSessionApiRoute(handler, sessionOptions);
+export default withIronSessionApiRoute(getCorsMiddleware()(handler), sessionOptions);

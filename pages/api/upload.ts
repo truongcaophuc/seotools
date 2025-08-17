@@ -7,6 +7,7 @@ import fs from 'fs';
 import prisma from '@lib/prisma';
 
 import { withIronSessionApiRoute } from 'iron-session/next';
+import { getCorsMiddleware } from '@lib/cors';
 import { sessionOptions } from '@lib/session';
 import pick from 'lodash/pick';
 import { get } from 'lodash';
@@ -153,4 +154,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     }
 }
 
-export default withIronSessionApiRoute(handler, sessionOptions);
+export default withIronSessionApiRoute(getCorsMiddleware()(handler), sessionOptions);

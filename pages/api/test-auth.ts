@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { withIronSessionApiRoute } from 'iron-session/next';
 import { sessionOptions } from '@lib/session';
 import prisma from '@lib/prisma';
-import cors from 'cors';
+import { getCorsMiddleware } from '@lib/cors';
 
 interface TestAuthRequest extends NextApiRequest {
     session: {
@@ -81,4 +81,4 @@ async function handler(req: TestAuthRequest, res: NextApiResponse) {
     }
 }
 
-export default withIronSessionApiRoute(cors()(handler), sessionOptions);
+export default withIronSessionApiRoute(getCorsMiddleware()(handler), sessionOptions);

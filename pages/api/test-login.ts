@@ -4,7 +4,7 @@ import { sessionOptions } from '@lib/session';
 import prisma from '@lib/prisma';
 import { checkPassword } from '@share/helps/password';
 import { setSessionUser } from '@share/helps/session';
-import cors from 'cors';
+import { getCorsMiddleware } from '@lib/cors';
 
 interface TestLoginRequest extends NextApiRequest {
     session: {
@@ -117,4 +117,4 @@ async function handler(req: TestLoginRequest, res: NextApiResponse) {
     }
 }
 
-export default withIronSessionApiRoute(cors()(handler), sessionOptions);
+export default withIronSessionApiRoute(getCorsMiddleware()(handler), sessionOptions);

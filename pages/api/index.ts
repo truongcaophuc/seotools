@@ -1,7 +1,7 @@
 import { sessionOptions } from '@lib/session';
 import { ApolloServer } from 'apollo-server-micro';
 import { withIronSessionApiRoute } from 'iron-session/next';
-import cors from 'micro-cors';
+import { getCorsMiddleware } from '@lib/cors';
 import { NextApiHandler } from 'next';
 import { schema } from '@share/graphql/schema';
 import { InMemoryLRUCache } from '@apollo/utils.keyvaluecache';
@@ -44,4 +44,4 @@ const handler: NextApiHandler = async (req, res) => {
     return apolloServerHandler(req, res);
 };
 
-export default withIronSessionApiRoute(cors()(handler), sessionOptions);
+export default withIronSessionApiRoute(getCorsMiddleware()(handler), sessionOptions);

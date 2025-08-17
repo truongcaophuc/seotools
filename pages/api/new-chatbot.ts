@@ -3,7 +3,7 @@ import { sessionOptions } from '@lib/session';
 import { generateLeadingSentence } from '@share/helps/generateLeadingSentence';
 import { serviceRedis } from '@share/helps/redis';
 import { withIronSessionApiRoute } from 'iron-session/next';
-import cors from 'micro-cors';
+import { getCorsMiddleware } from '@lib/cors';
 import { type NextApiRequest } from 'next';
 
 async function handler(req: NextApiRequest, res) {
@@ -143,4 +143,4 @@ async function handler(req: NextApiRequest, res) {
     });
 }
 
-export default withIronSessionApiRoute(cors()(handler), sessionOptions);
+export default withIronSessionApiRoute(getCorsMiddleware()(handler), sessionOptions);
