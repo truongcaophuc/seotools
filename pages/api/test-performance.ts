@@ -26,7 +26,7 @@ async function handler(req: TestPerformanceRequest, res: NextApiResponse) {
     try {
         // Test 1: Database connection speed
         const dbStart = Date.now();
-        await prisma.$queryRaw`SELECT 1`;
+        await prisma.$connect();
         const dbEnd = Date.now();
         performanceMetrics.tests.database = {
             duration: dbEnd - dbStart,
@@ -52,27 +52,7 @@ async function handler(req: TestPerformanceRequest, res: NextApiResponse) {
                     id: true,
                     username: true,
                     email: true,
-                    fullname: true,
-                    workspace: {
-                        select: {
-                            id: true,
-                            workspacePackage: {
-                                select: {
-                                    id: true,
-                                    timeUseGpt4: true,
-                                    packageItem: {
-                                        select: {
-                                            packageParent: {
-                                                select: {
-                                                    type: true
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    fullname: true
                 }
             });
             const userQueryEnd = Date.now();

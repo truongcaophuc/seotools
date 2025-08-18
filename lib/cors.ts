@@ -1,17 +1,12 @@
 import cors from 'micro-cors';
 
 // CORS configuration for production
+// micro-cors has simpler configuration than regular cors
 const corsOptions = {
-    origin: [
-        'http://localhost:3000',
-        'http://localhost:3001', 
-        'https://seotools-zeta.vercel.app',
-        'https://copybox.app',
-        // Add any other domains you need
-    ],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: [
+    origin: '*', // micro-cors doesn't support array of origins
+    allowCredentials: true,
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowHeaders: [
         'Content-Type',
         'Authorization',
         'X-Requested-With',
@@ -27,10 +22,10 @@ export const corsMiddleware = cors(corsOptions);
 
 // For development, allow all origins
 const devCorsOptions = {
-    origin: true,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: [
+    origin: '*',
+    allowCredentials: true,
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowHeaders: [
         'Content-Type',
         'Authorization', 
         'X-Requested-With',

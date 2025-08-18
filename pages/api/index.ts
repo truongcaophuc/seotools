@@ -27,9 +27,8 @@ async function getApolloServerHandler() {
                 maxSize: Math.pow(2, 20) * 100, // 100MB
                 ttl: 300_000, // 5 minutes
             }),
-            // Disable introspection and playground in production for better performance
+            // Disable introspection in production for better performance
             introspection: process.env.NODE_ENV !== 'production',
-            playground: process.env.NODE_ENV !== 'production',
             // Enable query caching
             persistedQueries: {
                 cache: new InMemoryLRUCache({

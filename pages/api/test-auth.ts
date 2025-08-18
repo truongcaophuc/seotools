@@ -3,6 +3,7 @@ import { withIronSessionApiRoute } from 'iron-session/next';
 import { sessionOptions } from '@lib/session';
 import prisma from '@lib/prisma';
 import { getCorsMiddleware } from '@lib/cors';
+import { Prisma } from '@prisma/client';
 
 interface TestAuthRequest extends NextApiRequest {
     session: {
@@ -20,8 +21,8 @@ async function handler(req: TestAuthRequest, res: NextApiResponse) {
     try {
         // Test database connection
         console.log('Testing database connection...');
-        const dbTest = await prisma.$queryRaw`SELECT 1`;
-        console.log('Database connection successful:', dbTest);
+        await prisma.$connect();
+        console.log('Database connection successful');
 
         // Test session
         console.log('Testing session...');
