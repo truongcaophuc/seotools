@@ -7,7 +7,6 @@ This example shows how to implement a **fullstack app in TypeScript with [Next.j
 ### 1. Download example and install dependencies
 
 Download this example:
-
 ```
 npx try-prisma --template typescript/graphql-nextjs
 ```
