@@ -105,14 +105,14 @@ export const WorkspaceSchema = objectType({
                         new ListObjectsV2Command(bucketParams)
                     );
 
-                    const responseData = await Promise.race([s3Promise, timeoutPromise]);
+                    const responseData = await Promise.race([s3Promise, timeoutPromise]) as any;
 
-                    if (!responseData.Contents) {
+                    if (!responseData?.Contents) {
                         return bucketSize;
                     }
 
                     bucketSize = responseData.Contents.reduce(
-                        (value, item) => value + (item.Size || 0),
+                        (value: number, item: any) => value + (item.Size || 0),
                         0
                     );
 
