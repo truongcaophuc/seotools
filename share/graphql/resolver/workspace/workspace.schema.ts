@@ -82,33 +82,46 @@ export const WorkspaceSchema = objectType({
             },
         });
         t.nullable.string('bucket');
-        t.nullable.field('bucketSize', {
+                t.nullable.field('bucketSize', {
             type: 'Int',
             async resolve(root) {
                 let bucketSize = 0;
 
                 if (!root.bucket) return bucketSize;
 
-                const bucketParams = {
-                    Bucket: AWS_BUCKET_NAME,
-                    Prefix: root.bucket,
-                    // Prefix: '/' // for test
-                };
+                try {
+                    const bucketParams = {
+                        Bucket: AWS_BUCKET_NAME,
+                        Prefix: root.bucket,
+                        MaxKeys: 1000, // Limit number of objects to prevent timeout
+                    };
 
-                const responseData = await s3Client.send(
-                    new ListObjectsV2Command(bucketParams)
-                );
+                    // Add timeout wrapper
+                    const timeoutPromise = new Promise((_, reject) => {
+                        setTimeout(() => reject(new Error('S3 request timeout')), 4000);
+                    });
 
-                if (!responseData.Contents) {
+                    const s3Promise = s3Client.send(
+                        new ListObjectsV2Command(bucketParams)
+                    );
+
+                    const responseData = await Promise.race([s3Promise, timeoutPromise]);
+
+                    if (!responseData.Contents) {
+                        return bucketSize;
+                    }
+
+                    bucketSize = responseData.Contents.reduce(
+                        (value, item) => value + (item.Size || 0),
+                        0
+                    );
+
                     return bucketSize;
+                } catch (error) {
+                    console.error('S3 bucketSize error:', error.message);
+                    // Return null instead of throwing error to prevent login failure
+                    return null;
                 }
-
-                bucketSize = responseData.Contents.reduce(
-                    (value, item) => value + item.Size,
-                    0
-                );
-
-                return bucketSize;
             },
         });
         t.field('isOwner', {
