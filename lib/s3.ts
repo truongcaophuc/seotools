@@ -12,10 +12,6 @@ const s3Client = new S3Client({
         accessKeyId: AWS_ACCESS_KEY,
         secretAccessKey: AWS_SECRET_ACCESS_KEY,
     },
-    requestHandler: {
-        requestTimeout: 5000, // 5 seconds timeout
-        connectionTimeout: 3000, // 3 seconds connection timeout
-    },
     maxAttempts: 2, // Reduce retry attempts
 });
 
