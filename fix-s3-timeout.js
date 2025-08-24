@@ -25,7 +25,7 @@ const s3Client = new S3Client({
         requestTimeout: 5000, // 5 seconds timeout
         connectionTimeout: 3000, // 3 seconds connection timeout
     },
-    maxAttempts: 2, // Reduce retry attempts
+    maxAttempts: 1, // Reduce retry attempts
 });
 
 export { s3Client };
