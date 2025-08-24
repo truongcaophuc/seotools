@@ -2,7 +2,8 @@ import { Prisma } from '@prisma/client';
 import { middleware } from '@share/graphql/middleware';
 import { CallbackManager } from 'langchain/callbacks';
 import { ChatVectorDBQAChain, LLMChain, loadQAChain } from 'langchain/chains';
-import { OpenAIChat } from 'langchain/llms';
+import { geminiAPI } from '@lib/gemini';
+import { OpenAI } from 'langchain/llms';
 import { PromptTemplate } from 'langchain/prompts';
 import { SupabaseVectorStore } from 'langchain/vectorstores';
 import {
@@ -223,16 +224,15 @@ export const makeChain = (
     onTokenStream?: (token: string) => void
 ) => {
     const questionGenerator = new LLMChain({
-        llm: new OpenAIChat({ temperature: 0 }),
+        llm: new OpenAI({ temperature: 0 }),
         prompt: CONDENSE_PROMPT,
     });
 
     console.log({ questionGenerator });
 
     const docChain = loadQAChain(
-        new OpenAIChat({
+        new OpenAI({
             temperature: 0,
-            modelName: 'gpt-3.5-turbo', //change this to older versions (e.g. gpt-3.5-turbo) if you don't have access to gpt-4
             streaming: Boolean(onTokenStream),
             callbackManager: onTokenStream
                 ? CallbackManager.fromHandlers({

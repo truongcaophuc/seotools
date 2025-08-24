@@ -19,6 +19,7 @@ export const dashboard = {
             create_content: { vi: 'Tạo nội dung', en: 'Create content' },
             chatbot: { vi: 'Chatbot', en: 'Chatbot' },
             research: { vi: 'Tra cứu tài liệu', en: 'Research' },
+            content_scraper: { vi: 'Content Scraper', en: 'Content Scraper' },
             utilities: { vi: 'Tiện ích', en: 'Utilities' },
         },
         admin: {},

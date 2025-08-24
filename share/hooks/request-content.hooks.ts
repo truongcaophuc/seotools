@@ -331,7 +331,7 @@ export function usePromptData({
     return;
 }
 
-type TUseTreamOpenAi = {
+type TUseStreamGemini = {
     isGpt: boolean;
     content: string;
     isStreaming: boolean;
@@ -352,7 +352,7 @@ type TUseTreamOpenAi = {
     }) => void;
 };
 
-export function useStreamOpenAi(model?: ModelAi): TUseTreamOpenAi {
+export function useStreamGemini(model?: ModelAi): TUseStreamGemini {
     const {
         content: contentChat,
         isStreaming: isStreamingChat,
@@ -367,14 +367,14 @@ export function useStreamOpenAi(model?: ModelAi): TUseTreamOpenAi {
         onCloseStream: onCloseStreamComplete,
     } = useStreamContent();
 
-    const isGpt = [ModelAi.Gpt, ModelAi.Gpt4].includes(model);
+    const isGemini = [ModelAi.Gpt, ModelAi.Gpt4].includes(model); // Keep same logic but rename for Gemini
 
-    const content = isGpt ? contentChat : contentComplete;
-    const isStreaming = isGpt ? isStreamingChat : isStreamingComplete;
-    const onCloseStream = isGpt ? onCloseStreamChat : onCloseStreamComplete;
+    const content = isGemini ? contentChat : contentComplete;
+    const isStreaming = isGemini ? isStreamingChat : isStreamingComplete;
+    const onCloseStream = isGemini ? onCloseStreamChat : onCloseStreamComplete;
 
     return {
-        isGpt,
+        isGpt: isGemini, // Keep isGpt property name for backward compatibility
         content,
         isStreaming,
         onCloseStream,

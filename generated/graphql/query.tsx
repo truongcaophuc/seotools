@@ -71,6 +71,13 @@ export type AddPostOfUserAppInput = {
   workspaceId: Scalars['ID'];
 };
 
+export type AddRootAdminInputType = {
+  email?: InputMaybe<Scalars['String']>;
+  fullname?: InputMaybe<Scalars['String']>;
+  password?: InputMaybe<Scalars['String']>;
+  username?: InputMaybe<Scalars['String']>;
+};
+
 export type AddServiceCategoryInputType = {
   description?: InputMaybe<Scalars['String']>;
   title?: InputMaybe<Scalars['String']>;
@@ -501,6 +508,7 @@ export type Mutation = {
   addMessageInConversation?: Maybe<ConversationItem>;
   addPostOfUserApp?: Maybe<Document>;
   addProject?: Maybe<Project>;
+  addRootAdmin?: Maybe<User>;
   addService?: Maybe<Service>;
   addServiceCategory?: Maybe<ServiceCategory>;
   addTeam?: Maybe<Team>;
@@ -627,6 +635,11 @@ export type MutationAddPostOfUserAppArgs = {
 
 export type MutationAddProjectArgs = {
   input?: InputMaybe<ProjectDataInputType>;
+};
+
+
+export type MutationAddRootAdminArgs = {
+  input?: InputMaybe<AddRootAdminInputType>;
 };
 
 
@@ -1061,6 +1074,7 @@ export type PageChannel = {
   name?: Maybe<Scalars['String']>;
   pageChannelId?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
+  token?: Maybe<Scalars['String']>;
   type?: Maybe<ChannelType>;
   url?: Maybe<Scalars['String']>;
   username?: Maybe<Scalars['String']>;
@@ -1973,14 +1987,14 @@ export type ConfirmRequestBuyWordMutationVariables = Exact<{
 
 export type ConfirmRequestBuyWordMutation = { __typename?: 'Mutation', confirmRequestBuyWord?: boolean | null };
 
-export type PageChannelInfoFragment = { __typename?: 'PageChannel', id?: string | null, name?: string | null, isActive?: boolean | null, pageChannelId?: string | null, url?: string | null, username?: string | null, password?: string | null, type?: ChannelType | null, createdAt?: any | null };
+export type PageChannelInfoFragment = { __typename?: 'PageChannel', id?: string | null, name?: string | null, isActive?: boolean | null, pageChannelId?: string | null, url?: string | null, username?: string | null, password?: string | null, token?: string | null, type?: ChannelType | null, createdAt?: any | null };
 
 export type PageChannelsQueryVariables = Exact<{
   input?: InputMaybe<PageChannelsInputType>;
 }>;
 
 
-export type PageChannelsQuery = { __typename?: 'Query', pageChannels?: { __typename?: 'PageChannelsResponseData', data?: Array<{ __typename?: 'PageChannel', id?: string | null, name?: string | null, isActive?: boolean | null, pageChannelId?: string | null, url?: string | null, username?: string | null, password?: string | null, type?: ChannelType | null, createdAt?: any | null } | null> | null, pagination?: { __typename?: 'PaginationType', total?: number | null, page?: number | null, perPage?: number | null } | null } | null };
+export type PageChannelsQuery = { __typename?: 'Query', pageChannels?: { __typename?: 'PageChannelsResponseData', data?: Array<{ __typename?: 'PageChannel', id?: string | null, name?: string | null, isActive?: boolean | null, pageChannelId?: string | null, url?: string | null, username?: string | null, password?: string | null, token?: string | null, type?: ChannelType | null, createdAt?: any | null } | null> | null, pagination?: { __typename?: 'PaginationType', total?: number | null, page?: number | null, perPage?: number | null } | null } | null };
 
 export type ConnectFacebookPageMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -1999,7 +2013,7 @@ export type UpdatePageChannelMutationVariables = Exact<{
 }>;
 
 
-export type UpdatePageChannelMutation = { __typename?: 'Mutation', updatePageChannel?: { __typename?: 'PageChannel', id?: string | null, name?: string | null, isActive?: boolean | null, pageChannelId?: string | null, url?: string | null, username?: string | null, password?: string | null, type?: ChannelType | null, createdAt?: any | null } | null };
+export type UpdatePageChannelMutation = { __typename?: 'Mutation', updatePageChannel?: { __typename?: 'PageChannel', id?: string | null, name?: string | null, isActive?: boolean | null, pageChannelId?: string | null, url?: string | null, username?: string | null, password?: string | null, token?: string | null, type?: ChannelType | null, createdAt?: any | null } | null };
 
 export type DeletePageChannelMutationVariables = Exact<{
   id?: InputMaybe<Scalars['ID']>;
@@ -2839,6 +2853,7 @@ export const PageChannelInfoFragmentDoc = `
   url
   username
   password
+  token
   type
   createdAt
 }

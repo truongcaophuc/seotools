@@ -15,5 +15,7 @@ declare module 'iron-session' {
     interface IronSessionData {
         userId?: string;
         user?: User;
+        facebookAccessToken?: string;
+        facebookUserId?: string;
     }
 }

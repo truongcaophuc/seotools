@@ -6,6 +6,7 @@ fragment PageChannelInfo on PageChannel {
     url
     username
     password
+    token
     type
     createdAt
 }

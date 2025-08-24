@@ -17,6 +17,7 @@ export const PageChannelSchema = objectType({
         t.nullable.string('password'); // use for wordpress
         t.nullable.string('username'); // wordpress
         t.nullable.string('url'); // wordpress
+        t.nullable.string('token'); // use for facebook
         t.string('name');
         t.boolean('isActive');
         t.date('createdAt');

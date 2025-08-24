@@ -1,4 +1,5 @@
-import { openAi } from '@lib/openai';
+import { geminiAPI } from '@lib/gemini';
+import { GEMINI_API_KEY } from '@constants/openai';
 import { sessionOptions } from '@lib/session';
 import { generateLeadingSentence } from '@share/helps/generateLeadingSentence';
 import { serviceRedis } from '@share/helps/redis';
@@ -46,101 +47,90 @@ async function handler(req: NextApiRequest, res) {
 
     let completion: any;
 
-    if (service.model === 'GPT') {
-        completion = await openAi.createChatCompletion(
-            {
-                model: 'gpt-3.5-turbo',
-                messages,
-                stream: true,
-                // max_tokens: 1500, // Choose the max allowed tokens in completion
-                temperature: 0, // Set to 0 for deterministic results
-            },
-            { responseType: 'stream' }
-        );
-    }
+    // Convert messages to Gemini format
+    const geminiMessages = messages.map(msg => ({
+        role: msg.role === 'user' ? 'user' : 'model',
+        parts: [{ text: msg.content }]
+    }));
 
-    if (service.model === 'GPT4') {
-        completion = await openAi.createChatCompletion(
-            {
-                model: 'gpt-4',
-                messages,
-                stream: true,
-                // max_tokens: 1500, // Choose the max allowed tokens in completion
-                temperature: 0, // Set to 0 for deterministic results
-            },
-            { responseType: 'stream' }
-        );
-    }
-
-    if (!service.model || service.model === 'Davinci') {
-        completion = await openAi.createCompletion(
-            {
-                model: 'text-davinci-003',
-                prompt: leadingSentence,
-                stream: true,
-                temperature: 0.5,
-                // max_tokens: 800,
-                top_p: 1.0,
-                frequency_penalty: 0,
-                presence_penalty: 0,
-            },
-            { responseType: 'stream' }
-        );
-    }
-
-    const isGpt = ['GPT', 'GPT4'].includes(service.model);
-
-    // @ts-ignore
-    completion.data.on('data', (data) => {
-        let lines = data
-            .toString()
-            .split('\n')
-            .filter((item: string) => {
-                return item !== '';
-            });
-
-        if (lines.length > 1) {
-            lines.shift();
+    const requestBody = {
+        contents: geminiMessages,
+        generationConfig: {
+            temperature: service.model === 'GPT4' ? 0 : 0.5,
+            maxOutputTokens: 1500,
         }
+    };
 
-        for (let line of lines) {
-            const message = line.replace(/^data: /, '');
+    // Use Gemini API for all models
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-goog-api-key': GEMINI_API_KEY,
+        },
+        body: JSON.stringify(requestBody),
+    });
 
-            if (message === '[DONE]') {
+    if (!response.ok) {
+        sendData('[DONE]');
+        return res.end();
+    }
+
+    completion = { data: response.body };
+
+    // Handle Gemini streaming response
+    const reader = completion.data.getReader();
+    const decoder = new TextDecoder();
+
+    try {
+        while (true) {
+            const { done, value } = await reader.read();
+            
+            if (done) {
                 sendData('[DONE]');
-
                 return res.end();
             }
 
-            try {
-                const parsed = JSON.parse(message);
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n').filter(line => line.trim());
 
-                //(parsed.choices[0].finish_reason === 'stop')
-                if (parsed.choices[0].finish_reason) {
-                    sendData('[DONE]');
-                    return res.end();
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const data = line.slice(6);
+                    
+                    if (data === '[DONE]') {
+                        sendData('[DONE]');
+                        return res.end();
+                    }
+
+                    try {
+                        const parsed = JSON.parse(data);
+                        
+                        if (parsed.candidates && parsed.candidates[0]) {
+                            const candidate = parsed.candidates[0];
+                            
+                            if (candidate.finishReason) {
+                                sendData('[DONE]');
+                                return res.end();
+                            }
+
+                            const content = candidate.content?.parts?.[0]?.text;
+                            
+                            if (content) {
+                                sendData(JSON.stringify({ text: content }));
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Could not parse Gemini response:', error);
+                    }
                 }
-
-                const content = isGpt
-                    ? parsed.choices[0].delta.content
-                    : parsed.choices[0].text;
-
-                if (content === undefined) {
-                    sendData('');
-                    return;
-                }
-
-                sendData(JSON.stringify({ text: content }));
-                return content;
-            } catch (error) {
-                console.error(
-                    'Could not JSON parse stream message',
-                    message,
-                    error
-                );
             }
         }
-    });
+    } catch (error) {
+        console.error('Error reading Gemini stream:', error);
+        sendData('[DONE]');
+        return res.end();
+    }
 }
 
 export default withIronSessionApiRoute(getCorsMiddleware()(handler), sessionOptions);

@@ -155,6 +155,9 @@ model User {
     styleContents     StyleContent[]
     languages         Language[]
     contents          Content[]
+    contentScrapings  ContentScraping[]
+    contentDrafts     ContentDraft[]
+    socialMediaPosts  SocialMediaPost[]
 }
 
 model EmailSignup {
@@ -469,4 +472,107 @@ enum PaymentType {
 
 enum TransactionType {
     TransferPayment
+}
+
+model ContentScraping {
+    id              String               @id @default(auto()) @map("_id") @db.ObjectId
+    url             String
+    title           String
+    content         String
+    description     String?
+    images          String[]
+    publishDate     String?
+    scrapingMethod  ScrapingMethod       @default(STATIC)
+    status          ScrapingStatus       @default(SCRAPED)
+    userId          String               @db.ObjectId
+    user            User                 @relation(fields: [userId], references: [id])
+    createdAt       DateTime             @default(now())
+    updatedAt       DateTime             @updatedAt
+    contentDrafts   ContentDraft[]
+    socialPosts     SocialMediaPost[]
+}
+
+model ContentDraft {
+    id                  String               @id @default(auto()) @map("_id") @db.ObjectId
+    originalTitle       String
+    originalContent     String
+    rewrittenTitle      String
+    rewrittenContent    String
+    tone                RewriteTone          @default(PROFESSIONAL)
+    length              RewriteLength        @default(SAME)
+    language            String               @default("vi")
+    customPrompt        String?
+    wordCountOriginal   Int
+    wordCountRewritten  Int
+    status              DraftStatus          @default(DRAFT)
+    contentScrapingId   String               @db.ObjectId
+    contentScraping     ContentScraping      @relation(fields: [contentScrapingId], references: [id])
+    userId              String               @db.ObjectId
+    user                User                 @relation(fields: [userId], references: [id])
+    createdAt           DateTime             @default(now())
+    updatedAt           DateTime             @updatedAt
+    socialPosts         SocialMediaPost[]
+}
+
+model SocialMediaPost {
+    id                  String               @id @default(auto()) @map("_id") @db.ObjectId
+    platform            SocialPlatform
+    content             String
+    scheduledAt         DateTime?
+    publishedAt         DateTime?
+    status              PostStatus           @default(DRAFT)
+    postId              String?              // External post ID from social platform
+    errorMessage        String?
+    contentScrapingId   String?              @db.ObjectId
+    contentScraping     ContentScraping?     @relation(fields: [contentScrapingId], references: [id])
+    contentDraftId      String?              @db.ObjectId
+    contentDraft        ContentDraft?        @relation(fields: [contentDraftId], references: [id])
+    userId              String               @db.ObjectId
+    user                User                 @relation(fields: [userId], references: [id])
+    createdAt           DateTime             @default(now())
+    updatedAt           DateTime             @updatedAt
+}
+
+enum ScrapingMethod {
+    STATIC
+    PUPPETEER
+}
+
+enum ScrapingStatus {
+    SCRAPED
+    PROCESSING
+    FAILED
+}
+
+enum RewriteTone {
+    PROFESSIONAL
+    CASUAL
+    ENGAGING
+    INFORMATIVE
+}
+
+enum RewriteLength {
+    SHORTER
+    SAME
+    LONGER
+}
+
+enum DraftStatus {
+    DRAFT
+    APPROVED
+    REJECTED
+}
+
+enum SocialPlatform {
+    FACEBOOK
+    TWITTER
+    LINKEDIN
+    INSTAGRAM
+}
+
+enum PostStatus {
+    DRAFT
+    SCHEDULED
+    PUBLISHED
+    FAILED
 }

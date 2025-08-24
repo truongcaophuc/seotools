@@ -16,8 +16,17 @@ const client = new Redis({
     password: REDIS_PASSWORD,
     db: REDIS_DB,
     // Cấu hình retry và timeout
-    maxRetriesPerRequest: 3,
+    maxRetriesPerRequest: 2,
+    retryDelayOnFailover: 100,
+    enableReadyCheck: false,
+    maxLoadingTimeout: 1000,
     lazyConnect: true, // Kết nối khi cần thiết
+    // Giảm số lượng kết nối
+    family: 4,
+    keepAlive: false,
+    // Tự động ngắt kết nối khi không sử dụng
+    connectTimeout: 10000,
+    commandTimeout: 5000,
 });
 
 // Xử lý sự kiện kết nối Redis
@@ -34,11 +43,51 @@ client.on('close', () => {
     console.log('🔌 Redis connection closed');
 });
 
+// Tự động đóng kết nối sau một khoảng thời gian không hoạt động
+let connectionTimeout: NodeJS.Timeout;
+
+const resetConnectionTimeout = () => {
+    if (connectionTimeout) {
+        clearTimeout(connectionTimeout);
+    }
+    connectionTimeout = setTimeout(() => {
+        if (client.status === 'ready') {
+            client.disconnect();
+            console.log('🔌 Redis connection closed due to inactivity');
+        }
+    }, 30000); // Đóng kết nối sau 30 giây không hoạt động
+};
+
+// Override các method để reset timeout
+const originalGet = client.get.bind(client);
+const originalSet = client.set.bind(client);
+const originalDel = client.del.bind(client);
+
+client.get = (...args) => {
+    resetConnectionTimeout();
+    return originalGet(...args);
+};
+
+client.set = (...args) => {
+    resetConnectionTimeout();
+    return originalSet(...args);
+};
+
+client.del = (...args) => {
+    resetConnectionTimeout();
+    return originalDel(...args);
+};
+
 (async function () {
     try {
-        // Kiểm tra kết nối Redis
-        await client.ping();
-        console.log('🚀 Redis client initialized successfully');
+        // Kiểm tra kết nối Redis chỉ khi cần thiết
+        if (REDIS_HOST !== 'localhost' || REDIS_PASSWORD) {
+            await client.ping();
+            console.log('🚀 Redis client initialized successfully');
+            resetConnectionTimeout();
+        } else {
+            console.log('⚠️ Redis not configured, skipping connection');
+        }
         // await client.ft.create(
         //     'idx:services',
         //     {

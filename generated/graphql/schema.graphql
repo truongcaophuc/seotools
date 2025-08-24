@@ -596,6 +596,7 @@ type PageChannel {
   name: String
   pageChannelId: String
   password: String
+  token: String
   type: ChannelType
   url: String
   username: String
