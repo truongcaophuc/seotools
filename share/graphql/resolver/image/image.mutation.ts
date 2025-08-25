@@ -1,7 +1,6 @@
-import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { AWS_BUCKET_NAME } from '@constants/aws';
+import { storageService } from '@lib/storage';
+import { MINIO_BUCKET_NAME } from '@constants/aws';
 import { replicate } from '@lib/replicate';
-import { s3Client } from '@lib/s3';
 import { middleware } from '@share/graphql/middleware';
 import { get } from 'lodash';
 import {
@@ -107,13 +106,9 @@ export const UpdateFolderImage = mutationField('updateFolderImage', {
     type: nullable('FolderImage'),
     args: { input: arg({ type: UpdateFolderImageInputType }) },
     async resolve(_, { input: { id, name, description } }, { prisma }) {
-        const params = {
-            Bucket: AWS_BUCKET_NAME, // The name of the bucket. For example, 'sample-bucket-101'.
-            //  Key: originalFilename, // The name of the object. For example, 'sample_upload.txt'.
-            Key: name,
-        };
-
-        await s3Client.send(new PutObjectCommand(params));
+        // Note: This seems to be updating metadata only, not uploading a new file
+        // If you need to upload a file here, you would need the file buffer
+        // await storageService.uploadFile(name, buffer, contentType);
         return await prisma.folderImage.update({
             where: { id },
             data: {

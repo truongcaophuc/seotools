@@ -3,6 +3,7 @@ import FilerobotImageEditor, {
     TABS,
     TOOLS,
 } from 'react-filerobot-image-editor';
+import { v4 as uuidv4 } from 'uuid';
 
 interface Props {
     source?: string;
@@ -21,10 +22,16 @@ export function EditorImage({ source, upload, onClose }: Props) {
             <FilerobotImageEditor
                 source={source}
                 onSave={async (editedImageObject, designState) => {
+                    // Tạo tên file UUID thay vì sử dụng editedImageObject.fullName
+                    const fileExtension = '.png'; // FilerobotImageEditor xuất ra PNG
+                    const fileName = `${uuidv4()}${fileExtension}`;
+                    console.log('Original filename:', editedImageObject.fullName);
+                    console.log('New UUID filename:', fileName);
                     const file = await base64ToFile(
                         editedImageObject.imageBase64,
-                        editedImageObject.fullName
+                        fileName
                     );
+                    console.log('File object name:', file.name);
                     upload(file);
                 }}
                 onClose={handleClose}
