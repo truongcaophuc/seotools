@@ -17,13 +17,11 @@ const client = new Redis({
     db: REDIS_DB,
     // Cấu hình retry và timeout
     maxRetriesPerRequest: 2,
-    retryDelayOnFailover: 100,
-    enableReadyCheck: false,
-    maxLoadingTimeout: 1000,
+    enableReadyCheck: true,
     lazyConnect: true, // Kết nối khi cần thiết
     // Giảm số lượng kết nối
     family: 4,
-    keepAlive: false,
+    keepAlive: 30000,
     // Tự động ngắt kết nối khi không sử dụng
     connectTimeout: 10000,
     commandTimeout: 5000,
