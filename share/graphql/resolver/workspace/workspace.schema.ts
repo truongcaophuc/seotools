@@ -1,6 +1,5 @@
-import { ListObjectsV2Command } from '@aws-sdk/client-s3';
-import { AWS_BUCKET_NAME } from '@constants/aws';
-import { s3Client } from '@lib/s3';
+import { storageService } from '@lib/storage';
+import { MINIO_BUCKET_NAME } from '@constants/aws';
 import moment from 'moment';
 import { nullable, objectType } from 'nexus';
 
@@ -90,35 +89,18 @@ export const WorkspaceSchema = objectType({
                 if (!root.bucket) return bucketSize;
 
                 try {
-                    const bucketParams = {
-                        Bucket: AWS_BUCKET_NAME,
-                        Prefix: root.bucket,
-                        MaxKeys: 1000, // Limit number of objects to prevent timeout
-                    };
-
-                    // Add timeout wrapper
+                    // Add timeout wrapper for MinIO operations
                     const timeoutPromise = new Promise((_, reject) => {
-                        setTimeout(() => reject(new Error('S3 request timeout')), 4000);
+                        setTimeout(() => reject(new Error('MinIO request timeout')), 4000);
                     });
 
-                    const s3Promise = s3Client.send(
-                        new ListObjectsV2Command(bucketParams)
-                    );
+                    const minioPromise = storageService.getBucketSize();
 
-                    const responseData = await Promise.race([s3Promise, timeoutPromise]) as any;
-
-                    if (!responseData?.Contents) {
-                        return bucketSize;
-                    }
-
-                    bucketSize = responseData.Contents.reduce(
-                        (value: number, item: any) => value + (item.Size || 0),
-                        0
-                    );
+                    bucketSize = await Promise.race([minioPromise, timeoutPromise]) as number;
 
                     return bucketSize;
                 } catch (error) {
-                    console.error('S3 bucketSize error:', error.message);
+                    console.error('MinIO bucketSize error:', error.message);
                     // Return null instead of throwing error to prevent login failure
                     return null;
                 }

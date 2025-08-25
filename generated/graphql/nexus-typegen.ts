@@ -664,6 +664,7 @@ export interface NexusGenObjects {
     name?: string | null; // String
     pageChannelId?: string | null; // String
     password?: string | null; // String
+    token?: string | null; // String
     type?: NexusGenEnums['ChannelType'] | null; // ChannelType
     url?: string | null; // String
     username?: string | null; // String
@@ -1176,6 +1177,7 @@ export interface NexusGenFieldTypes {
     name: string | null; // String
     pageChannelId: string | null; // String
     password: string | null; // String
+    token: string | null; // String
     type: NexusGenEnums['ChannelType'] | null; // ChannelType
     url: string | null; // String
     username: string | null; // String
@@ -1753,6 +1755,7 @@ export interface NexusGenFieldTypeNames {
     name: 'String'
     pageChannelId: 'String'
     password: 'String'
+    token: 'String'
     type: 'ChannelType'
     url: 'String'
     username: 'String'

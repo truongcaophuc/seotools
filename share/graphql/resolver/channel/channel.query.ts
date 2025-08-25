@@ -1,4 +1,5 @@
 import { Prisma } from '@prisma/client';
+import { middleware } from '@share/graphql/middleware';
 import { arg, inputObjectType, list, objectType, queryField } from 'nexus';
 
 const PageChannelsResponseData = objectType({
@@ -31,6 +32,7 @@ const PageChannelsInputType = inputObjectType({
 
 export const PageChannelsQuery = queryField('pageChannels', {
     type: PageChannelsResponseData,
+    authorize: (_, __, context) => middleware.auth(context),
     args: { input: arg({ type: PageChannelsInputType }) },
     async resolve(
         _,

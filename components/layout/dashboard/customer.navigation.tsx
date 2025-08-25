@@ -11,6 +11,7 @@ import {
     NewspaperIcon,
     RocketLaunchIcon,
     Squares2X2Icon,
+    GlobeAltIcon,
 } from '@heroicons/react/24/outline';
 import { useSetting } from '@share/hooks/setting.hooks';
 import { useTranslate } from '@share/hooks/translate.hooks';
@@ -118,6 +119,11 @@ export function CustomerNavigation() {
             label: t('dashboard.sidebar.customer.research'),
             href: '/user/research',
             icon: DocumentMagnifyingGlassIcon,
+        },
+        {
+            label: t('dashboard.sidebar.customer.content_scraper'),
+            href: '/user/content-scraper',
+            icon: GlobeAltIcon,
         },
         {
             label: t('dashboard.sidebar.customer.utilities'),

@@ -13,14 +13,14 @@ import {
     stringArg,
 } from 'nexus';
 
-import { OPENAI_API_KEY } from '@constants/openai';
+import { OPENAI_API_KEY, GEMINI_API_KEY } from '@constants/openai';
 import { supabaseClient } from '@lib/supabase';
 import { encode } from 'gpt-3-encoder';
 import { Document } from 'langchain/document';
 import { OpenAIEmbeddings } from 'langchain/embeddings';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { SupabaseVectorStore } from 'langchain/vectorstores';
-import { Configuration, OpenAIApi } from 'openai';
+import { geminiAPI } from '@lib/gemini';
 import pdf from 'pdf-parse';
 
 import { getTotalTokenDoc } from '@share/helps/token-document';
@@ -258,11 +258,8 @@ export const EmbeddedDocument3 = mutationField('embeddedDocument3', {
     },
 });
 
-const configuration = new Configuration({
-    apiKey: process.env.OPENAI_API_KEY,
-});
-
-const openai = new OpenAIApi(configuration);
+// Using Gemini API instead of OpenAI for chat completions
+// Keep OpenAI for embeddings as Gemini doesn't have embedding API yet
 
 export const EmbeddedDocument1 = mutationField('embeddedDocument1', {
     type: 'Boolean',
@@ -311,12 +308,21 @@ export const EmbeddedDocument1 = mutationField('embeddedDocument1', {
                 // OpenAI recommends replacing newlines with spaces for best results
                 const input = doc.pageContent.replace(/\n/g, ' ');
 
-                const embeddingResponse = await openai.createEmbedding({
-                    model: 'text-embedding-ada-002',
-                    input,
+                // Note: Using OpenAI for embeddings as Gemini doesn't have embedding API
+                const response = await fetch('https://api.openai.com/v1/embeddings', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model: 'text-embedding-ada-002',
+                        input,
+                    }),
                 });
+                const embeddingResponse = await response.json();
 
-                const [{ embedding }] = embeddingResponse.data.data;
+                const [{ embedding }] = embeddingResponse.data;
 
                 const client = supabaseClient();
 
@@ -529,12 +535,20 @@ export const ReSearchDocument1 = queryField('researchDocument1', {
 
         // const res = await embeddings.embedQuery('Reactjs');
 
-        const embeddingResponse = await openai.createEmbedding({
-            model: 'text-embedding-ada-002',
-            input: question.replace(/\n/g, ' '),
+        // Note: Using OpenAI for embeddings as Gemini doesn't have embedding API
+        const response = await fetch('https://api.openai.com/v1/embeddings', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                model: 'text-embedding-ada-002',
+                input: question.replace(/\n/g, ' '),
+            }),
         });
-
-        const [{ embedding }] = embeddingResponse.data.data;
+        const embeddingResponse = await response.json();
+        const [{ embedding }] = embeddingResponse.data;
 
         // const { data, error } = await client.rpc('match_documents1', {
         //     query_embedding: embedding,
@@ -608,12 +622,20 @@ export const ReSearchDocument = mutationField('reSearchDocument', {
 
         const client = supabaseClient();
 
-        const embeddingResponse = await openai.createEmbedding({
-            model: 'text-embedding-ada-002',
-            input: question,
+        // Note: Using OpenAI for embeddings as Gemini doesn't have embedding API
+        const response = await fetch('https://api.openai.com/v1/embeddings', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                model: 'text-embedding-ada-002',
+                input: question,
+            }),
         });
-
-        const [{ embedding }] = embeddingResponse.data.data;
+        const embeddingResponse = await response.json();
+        const [{ embedding }] = embeddingResponse.data;
 
         const { data, error } = await client.rpc('match_documents', {
             query_embedding: embedding,
@@ -653,17 +675,14 @@ export const ReSearchDocument = mutationField('reSearchDocument', {
         Answer as markdown (including related code snippets if available):
       `);
 
-        const completion = await openai.createChatCompletion({
-            model: 'gpt-3.5-turbo',
+        const completion = await geminiAPI.createChatCompletion({
             messages: [{ role: 'user', content: 'Hello world' }],
+            temperature: 0.7,
+            maxTokens: 1000,
         });
 
-        const {
-            id,
-            choices: [{ message }],
-        } = completion.data;
-
-        return message.content;
+        const message = completion instanceof ReadableStream ? null : completion.data.choices[0]?.message;
+        return message?.content || '';
 
         // console.log({ data, error });
 

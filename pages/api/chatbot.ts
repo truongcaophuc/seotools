@@ -1,5 +1,4 @@
-import { DEFAULT_MAX_TOKEN } from '@constants/openai';
-import { openAiWithEdge } from '@lib/openai';
+import { DEFAULT_MAX_TOKEN, GEMINI_API_KEY } from '@constants/openai';
 import type { NextRequest } from 'next/server';
 
 const handler = async (req: NextRequest, res) => {
@@ -14,15 +13,34 @@ const handler = async (req: NextRequest, res) => {
     }
 
     try {
-        const completion = await openAiWithEdge.createChatCompletion({
-            model: 'gpt-3.5-turbo',
-            messages,
-            max_tokens,
-            temperature: 0.7,
-            stream: true,
+        // Convert messages to Gemini format
+        const geminiMessages = messages.map(msg => ({
+            role: msg.role === 'user' ? 'user' : 'model',
+            parts: [{ text: msg.content }]
+        }));
+
+        const requestBody = {
+            contents: geminiMessages,
+            generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: max_tokens,
+            }
+        };
+
+        const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-goog-api-key': GEMINI_API_KEY,
+            },
+            body: JSON.stringify(requestBody),
         });
 
-        return new Response(completion.body, {
+        if (!response.ok) {
+            throw new Error(`Gemini API error: ${response.status} ${response.statusText}`);
+        }
+
+        return new Response(response.body, {
             headers: {
                 'Access-Control-Allow-Origin': '*',
                 'Content-Type': 'text/event-stream;charset=utf-8',

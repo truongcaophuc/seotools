@@ -12,7 +12,7 @@ const s3Client = new S3Client({
         accessKeyId: AWS_ACCESS_KEY,
         secretAccessKey: AWS_SECRET_ACCESS_KEY,
     },
-    maxAttempts: 2, // Reduce retry attempts
+    maxAttempts: 1, // Reduce retry attempts
 });
 
 export { s3Client };

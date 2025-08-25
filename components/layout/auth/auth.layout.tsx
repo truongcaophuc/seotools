@@ -29,56 +29,59 @@ interface Props {
     bottom: IBottomLink;
 }
 
+// Helper function to check if session cookie exists
+function hasSessionCookie(): boolean {
+    if (typeof window === 'undefined') return false;
+    
+    const cookieName = 'iron-session/seo-tools/next.js';
+    return document.cookie.split(';').some(cookie => 
+        cookie.trim().startsWith(`${cookieName}=`)
+    );
+}
+
 export function AuthLayout({ children, title, description, bottom }: Props) {
     const router = useRouter();
     const { data, isLoading } = useMe();
-    const [loadingTimeout, setLoadingTimeout] = useState(false);
+    const [hasRedirected, setHasRedirected] = useState(false);
 
     const me = data?.me;
 
+    // Check for session cookie immediately and redirect
     useEffect(() => {
-        // Set timeout for slow loading detection
-        const timeout = setTimeout(() => {
-            setLoadingTimeout(true);
-        }, 3000); // 3 seconds
+        if (hasRedirected) return;
+        
+        if (hasSessionCookie()) {
+            setHasRedirected(true);
+            // Redirect to dashboard immediately if session exists
+            // The actual user role check will happen in dashboard
+            router.push('/dashboard');
+        }
+    }, [router, hasRedirected]);
 
-        if (!isLoading) {
-            clearTimeout(timeout);
-            setLoadingTimeout(false);
+    // Fallback: if no session cookie but useMe returns user data
+    useEffect(() => {
+        if (hasRedirected || !me) return;
+
+        setHasRedirected(true);
+        if ([UserRole.Admin, UserRole.RootAdmin].includes(me.role)) {
+            router.push('/dashboard');
+            return;
         }
 
-        return () => clearTimeout(timeout);
-    }, [isLoading]);
-
-    useEffect(() => {
-        function progress() {
-            if (!me) {
-                return;
-            }
-
-            if ([UserRole.Admin, UserRole.RootAdmin].includes(me.role)) {
-                router.push('/dashboard');
-                return;
-            }
-
-            if ([UserRole.User, UserRole.Staff].includes(me.role)) {
-                router.push('/user');
-                return;
-            }
+        if ([UserRole.User, UserRole.Staff].includes(me.role)) {
+            router.push('/user');
+            return;
         }
-        progress();
-    }, [me, router]);
+    }, [me, router, hasRedirected]);
 
-    if (isLoading) {
-        return loadingTimeout ? (
-            <FastLoading 
-                message="Đang kiểm tra thông tin đăng nhập..." 
-                showProgressText={true}
-                timeout={8000}
-            />
-        ) : (
-            <Loading full />
-        );
+    // Don't show loading if we're redirecting
+    if (hasRedirected) {
+        return <Loading full />;
+    }
+
+    // Only show loading if we're actually loading and haven't found a session
+    if (isLoading && !hasSessionCookie()) {
+        return <Loading full />;
     }
 
     return (

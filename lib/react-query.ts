@@ -6,6 +6,7 @@ import { GraphQLClient } from 'graphql-request';
 //     };
 // }
 
-export const graphqlRequestClient = new GraphQLClient(`/api`, {
+export const graphqlRequestClient = new GraphQLClient(`http://localhost:3000/api`, {
+    credentials: 'include',
     // requestMiddleware: middleware,
 });
