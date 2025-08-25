@@ -1,5 +1,5 @@
-import { AWS_URL_IMAGE } from '@constants/aws';
+import { MINIO_URL_IMAGE } from '@constants/aws';
 
 export function formatUrlImage(nameFile: string) {
-    return `${AWS_URL_IMAGE}/${nameFile}?${Date.now()}`;
+    return `${MINIO_URL_IMAGE}/${nameFile}?${Date.now()}`;
 }

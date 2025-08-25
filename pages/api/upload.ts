@@ -1,10 +1,10 @@
-import { DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
-import { AWS_BUCKET_NAME } from '@constants/aws';
-import { s3Client } from '@lib/s3';
+import { storageService } from '@lib/storage';
+import { MINIO_BUCKET_NAME } from '@constants/aws';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import formidable from 'formidable';
 import fs from 'fs';
 import prisma from '@lib/prisma';
+import { v4 as uuidv4 } from 'uuid';
 
 import { withIronSessionApiRoute } from 'iron-session/next';
 import { getCorsMiddleware } from '@lib/cors';
@@ -18,9 +18,8 @@ export const config = {
     },
 };
 
-function deleteFile(Key: string) {
-    const bucketParams = { Bucket: AWS_BUCKET_NAME, Key };
-    return s3Client.send(new DeleteObjectCommand(bucketParams));
+async function deleteFile(key: string) {
+    return await storageService.deleteFile(key);
 }
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -43,25 +42,17 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                         let buffer = fs.readFileSync(file.files.filepath);
 
                         const originalFilename = file.files?.originalFilename;
-                        const numberRandom = Math.ceil(
-                            Math.random() * 10 ** 10
-                        );
-
-                        const nameFile = `${numberRandom}-${originalFilename}`;
+                        
+                        // Lấy extension từ tên file gốc
+                        const fileExtension = originalFilename?.split('.').pop() || 'png';
+                        
+                        // Tạo tên file mới sử dụng UUID
+                        const nameFile = `${uuidv4()}.${fileExtension}`;
 
                         const Key = `${fields.bucket}/${nameFile}`;
 
-                        const params = {
-                            Bucket: AWS_BUCKET_NAME, // The name of the bucket. For example, 'sample-bucket-101'.
-                            //  Key: originalFilename, // The name of the object. For example, 'sample_upload.txt'.
-                            Key,
-                            ContentType: file.files.mimetype,
-                            ContentDisposition: 'inline',
-                            Body: buffer, // The content of the object. For example, 'Hello world!".
-                        };
-
-                        const data = new PutObjectCommand(params);
-                        await s3Client.send(data);
+                        // Upload to MinIO
+                        await storageService.uploadFile(Key, buffer, file.files.mimetype);
 
                         const image = await prisma.image.create({
                             data: {
@@ -98,28 +89,22 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
                     if (file.files) {
                         const originalFilename = file.files?.originalFilename;
-                        const Key = originalFilename;
+                        
+                        // Lấy extension từ tên file gốc
+                        const fileExtension = originalFilename?.split('.').pop() || 'png';
+                        
+                        // Tạo tên file mới sử dụng UUID
+                        const Key = `${uuidv4()}.${fileExtension}`;
 
                         console.log({ Key });
 
-                        const result = await deleteFile(Key);
+                        await deleteFile(Key);
 
-                        console.log({ result });
-                        //
+                        // Upload new file to MinIO
                         let buffer = fs.readFileSync(file.files.filepath);
+                        await storageService.uploadFile(Key, buffer, file.files.mimetype);
 
-                        const params = {
-                            Bucket: AWS_BUCKET_NAME, // The name of the bucket. For example, 'sample-bucket-101'.
-                            //  Key: originalFilename, // The name of the object. For example, 'sample_upload.txt'.
-                            Key,
-                            Body: buffer, // The content of the object. For example, 'Hello world!".
-                        };
-
-                        const data = new PutObjectCommand(params);
-
-                        const result1 = await s3Client.send(data);
-
-                        console.log({ result1 });
+                        console.log('File updated successfully in MinIO');
 
                         res.status(200).json({
                             status: true,
