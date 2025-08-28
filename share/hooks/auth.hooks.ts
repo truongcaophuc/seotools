@@ -78,6 +78,11 @@ export function useLogin() {
             if (data?.login) {
                 toast.toastSuccess(t('auth.messages.login.success'));
                 queryClient.invalidateQueries(['Me']);
+                
+                // Redirect to dashboard after successful login
+                if (typeof window !== 'undefined') {
+                    window.location.href = '/dashboard';
+                }
             } else {
                 toast.toastError(t('auth.messages.login.fail'));
             }
