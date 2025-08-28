@@ -681,7 +681,7 @@ export const ReSearchDocument = mutationField('reSearchDocument', {
             maxTokens: 1000,
         });
 
-        const message = completion.data.choices[0]?.message;
+        const message = completion instanceof ReadableStream ? null : completion.data.choices[0]?.message;
         return message?.content || '';
 
         // console.log({ data, error });

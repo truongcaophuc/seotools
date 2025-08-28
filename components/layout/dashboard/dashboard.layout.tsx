@@ -97,15 +97,8 @@ export function DashboardLayout({
 
     const isMobile = useMobile();
 
-    // Kiểm tra session cookie để quyết định có redirect về login hay không
-    const hasSessionCookie = () => {
-        if (typeof window === 'undefined') return false;
-        return document.cookie.includes('iron-session/seo-tools/next.js');
-    };
-
     useEffect(() => {
         // Redirect về login nếu đã load xong và không có user data
-        // Bao gồm cả trường hợp có session cookie nhưng user không tồn tại
         if (!isLoading && !data?.me) {
             router.push('/login');
         }
@@ -134,30 +127,7 @@ export function DashboardLayout({
         );
     }
 
-    // Hiển thị skeleton loading nếu đang load và có session cookie
-    if ((isLoading || isLoadingAuth) && hasSessionCookie()) {
-        return (
-            <Flex h="100vh">
-                <Skeleton w="250px" h="100vh" />
-                <VStack spacing="0" align="stretch" flex="1" overflow="hidden">
-                    <Skeleton h="60px" />
-                    <Box flex="1" p="6">
-                        <VStack align="stretch" spacing="5">
-                            <Skeleton h="40px" w="200px" />
-                            <Skeleton h="200px" />
-                            <Skeleton h="150px" />
-                            <Skeleton h="100px" />
-                        </VStack>
-                    </Box>
-                </VStack>
-            </Flex>
-        );
-    }
 
-    // Hiển thị loading toàn màn hình nếu không có session cookie
-    if (isLoading || isLoadingAuth) {
-        return <Loading full />;
-    }
 
     if (data?.me && !data?.me?.active) {
         return <BannedDashboardLayout />;
@@ -241,7 +211,17 @@ export function DashboardLayout({
                                     {extra}
                                 </HStack>
                             ) : null}
-                            {children}
+                            {isLoading || isLoadingAuth ? (
+                                <VStack align="stretch" spacing="5">
+                                    <Skeleton h="40px" w="200px" />
+                                    <Skeleton h="200px" />
+                                    <Skeleton h="150px" />
+                                    <Skeleton h="100px" />
+                                    <Skeleton h="120px" />
+                                </VStack>
+                            ) : (
+                                children
+                            )}
                         </VStack>
                     </InnerLayout>
                 </VStack>
